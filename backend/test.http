@@ -1,0 +1,17 @@
+### Créer une playlist
+POST http://localhost:3000/api/playlists
+Content-Type: application/json
+
+{
+  "name": "Test Playlist",
+  "creator": "Alice",
+  "songs": [
+    {"title": "Bohemian Rhapsody", "artist": "Queen"},
+    {"title": "Stairway to Heaven", "artist": "Led Zeppelin"}
+  ],
+  "contributors": [],
+  "style": "rock"
+}
+
+### Récupérer toutes les playlists
+GET http://localhost:3000/api/playlists
