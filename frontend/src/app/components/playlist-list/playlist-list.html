@@ -1,0 +1,17 @@
+<div class="container">
+  <h1>🎵 MEMPA - Playlists</h1>
+
+  <button (click)="goToCreate()">+ Créer une playlist</button>
+
+  <div class="playlist-grid">
+    @for (playlist of playlists; track playlist._id) {
+      <div class="playlist-card" (click)="goToDetail(playlist._id!)">
+        <h2>{{ playlist.name }}</h2>
+        <p><strong>Créateur :</strong> {{ playlist.creator }}</p>
+        <p><strong>Style :</strong> {{ playlist.style }}</p>
+        <p><strong>Morceaux :</strong> {{ playlist.songs.length }}</p>
+        <p><strong>Clics :</strong> {{ playlist.clicks }}</p>
+      </div>
+    }
+  </div>
+</div>
