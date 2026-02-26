@@ -1,0 +1,16 @@
+### GET toutes les playlists
+GET http://localhost:3000/api/playlists
+
+### POST créer une playlist
+POST http://localhost:3000/api/playlists
+Content-Type: application/json
+
+{
+  "name": "Test Playlist",
+  "creator": "Alice",
+  "songs": [
+    {"title": "Bohemian Rhapsody", "artist": "Queen"}
+  ],
+  "contributors": [],
+  "style": "rock"
+}
