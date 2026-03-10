@@ -2,7 +2,9 @@
   <h2>Connexion</h2>
 
   <!-- Message d'erreur si login échoue -->
-  <p *If="errorMessage" class="error">{{ errorMessage }}</p>
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
 
   <div>
     <label>Email</label>

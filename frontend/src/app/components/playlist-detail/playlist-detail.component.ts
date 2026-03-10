@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PlaylistService } from '../../services/playlist.services';
+import { PlaylistService } from '../../services/playlist.service';
 import { Playlist } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 
