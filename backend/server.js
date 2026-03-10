@@ -7,9 +7,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ MongoDB connecté'))
-    .catch(err => console.error('❌ Erreur MongoDB :', err));
+mongoose.set('returnDocument', 'after');
+
+const MONGO_URL = process.env.NODE_ENV === 'prod'
+    ? process.env.MONGO_URL_PROD
+    : process.env.MONGO_URL_DEV;
+
+mongoose.connect(MONGO_URL)
+    .then(() => console.log(`✅ MongoDB connecté (${process.env.NODE_ENV})`))
+    .catch(err => console.error(':x: Erreur MongoDB :', err));
 
 const playlistRoutes = require('./routes/playlists');
 app.use('/api/playlists', playlistRoutes);
