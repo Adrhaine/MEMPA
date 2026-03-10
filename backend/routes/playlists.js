@@ -1,5 +1,6 @@
 const express  = require('express');
 const router   = express.Router();
+const authMiddleware = require('../middleware/auth');
 const Playlists = require('../models/Playlist');
 
 // GET — toutes les playlists
@@ -26,10 +27,13 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST — créer une playlist
-router.post('/', async (req, res) => {
+// POST — créer une playlist (protégée, faut être connecté)
+router.post('/', authMiddleware, async (req, res) => {
     try {
-        const playlist = new Playlists(req.body);
+        const playlist = new Playlists({
+            ...req.body,
+            createdBy: req.user.userId // on associe le créateur automatiquement
+        });
         const saved = await playlist.save();
         res.status(201).json(saved);
     } catch (err) {
