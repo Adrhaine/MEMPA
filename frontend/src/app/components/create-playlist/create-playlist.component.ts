@@ -2,15 +2,15 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PlaylistService } from '../../services/playlist';
+import { PlaylistService } from '../../services/playlist.services';
 import { Playlist, Song } from '../../models/playlist.model';
 
 @Component({
   selector: 'app-create-playlist',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './create-playlist.html',
-  styleUrl: './create-playlist.css'
+  templateUrl: './create-playlist.component.html',
+  styleUrl: './create-playlist.component.css'
 })
 export class CreatePlaylistComponent {
   playlist: Playlist = {

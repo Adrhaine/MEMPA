@@ -1,0 +1,25 @@
+<div class="register-container">
+  <h2>Inscription</h2>
+
+  <!-- Message d'erreur si register échoue -->
+  <p *If="errorMessage" class="error">{{ errorMessage }}</p>
+
+  <div>
+    <label>Nom d'utilisateur</label>
+    <input type="text" [(ngModel)]="username" placeholder="JohnDoe" />
+  </div>
+
+  <div>
+    <label>Email</label>
+    <input type="email" [(ngModel)]="email" placeholder="votre@email.com" />
+  </div>
+
+  <div>
+    <label>Mot de passe</label>
+    <input type="password" [(ngModel)]="password" placeholder="••••••••" />
+  </div>
+
+  <button (click)="onRegister()">S'inscrire</button>
+
+  <p>Déjà un compte ? <a routerLink="/login">Se connecter</a></p>
+</div>

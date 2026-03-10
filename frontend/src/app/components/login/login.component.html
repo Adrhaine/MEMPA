@@ -1,0 +1,20 @@
+<div class="login-container">
+  <h2>Connexion</h2>
+
+  <!-- Message d'erreur si login échoue -->
+  <p *If="errorMessage" class="error">{{ errorMessage }}</p>
+
+  <div>
+    <label>Email</label>
+    <input type="email" [(ngModel)]="email" placeholder="votre@email.com" />
+  </div>
+
+  <div>
+    <label>Mot de passe</label>
+    <input type="password" [(ngModel)]="password" placeholder="••••••••" />
+  </div>
+
+  <button (click)="onLogin()">Se connecter</button>
+
+  <p>Pas encore de compte ? <a routerLink="/register">S'inscrire</a></p>
+</div>

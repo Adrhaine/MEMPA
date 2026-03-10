@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PlaylistService } from '../../services/playlist';
+import { PlaylistService } from '../../services/playlist.services';
 import { Playlist } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 
@@ -8,8 +8,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-playlist-detail',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './playlist-detail.html',
-  styleUrl: './playlist-detail.css'
+  templateUrl: './playlist-detail.component.html',
+  styleUrl: './playlist-detail.component.css'
 })
 export class PlaylistDetailComponent implements OnInit {
   playlist: Playlist | null = null;
