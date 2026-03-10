@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { PlaylistService } from '../../services/playlist';
+import { PlaylistService } from '../../services/playlist.services';
 import { Playlist } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 
@@ -8,8 +8,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-playlist-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './playlist-list.html',
-  styleUrl: './playlist-list.css'
+  templateUrl: './playlist-list.component.html',
+  styleUrl: './playlist-list.component.css'
 })
 export class PlaylistListComponent implements OnInit {
   playlists: Playlist[] = [];
