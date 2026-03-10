@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PlaylistService } from '../../services/playlist.services';
+import { PlaylistService } from '../../services/playlist.service';
 import { Playlist, Song } from '../../models/playlist.model';
 
 @Component({

@@ -3,6 +3,32 @@
 
   <button (click)="goToCreate()">+ Créer une playlist</button>
 
+  <!-- Barre de recherche -->
+  <div class="search-bar">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="onSearch()"
+      placeholder="Rechercher par nom ou style..."
+    />
+    <button (click)="onReset()">Réinitialiser</button>
+  </div>
+
+  <!-- Boutons de tri -->
+  <div class="sort-buttons">
+    <span>Trier par :</span>
+    <button (click)="onSort('name')">
+      Nom {{ sortBy === 'name' ? (order === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+    <button (click)="onSort('clicks')">
+      Clics {{ sortBy === 'clicks' ? (order === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+    <button (click)="onSort('style')">
+      Style {{ sortBy === 'style' ? (order === 'asc' ? '↑' : '↓') : '' }}
+    </button>
+  </div>
+
+  <!-- Liste des playlists -->
   <div class="playlist-grid">
     @for (playlist of playlists; track playlist._id) {
       <div class="playlist-card" (click)="goToDetail(playlist._id!)">

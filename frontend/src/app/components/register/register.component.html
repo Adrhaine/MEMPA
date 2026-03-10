@@ -2,7 +2,9 @@
   <h2>Inscription</h2>
 
   <!-- Message d'erreur si register échoue -->
-  <p *If="errorMessage" class="error">{{ errorMessage }}</p>
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
 
   <div>
     <label>Nom d'utilisateur</label>

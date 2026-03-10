@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Playlist } from '../models/playlist.model';
 import { AuthService } from './auth.service';
@@ -18,8 +18,15 @@ export class PlaylistService {
   }
 
   // GET — pas besoin de token, tout le monde peut voir les playlists
-  getAll(): Observable<Playlist[]> {
-    return this.http.get<Playlist[]>(this.apiUrl);
+  // GET — avec paramètres optionnels de tri et recherche
+  getAll(search: string = '', sortBy: string = '', order: string = 'asc'): Observable<Playlist[]> {
+    // Construction des paramètres de l'URL
+    let params = new HttpParams();
+    if (search) params = params.set('search', search);
+    if (sortBy) params = params.set('sortBy', sortBy);
+    if (order) params = params.set('order', order);
+
+    return this.http.get<Playlist[]>(this.apiUrl, { params });
   }
 
   // GET — pas besoin de token
