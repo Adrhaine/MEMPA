@@ -18,7 +18,6 @@ router.get('/:id', async (req, res) => {
         const playlist = await Playlists.findByIdAndUpdate(
             req.params.id,
             { $inc: { clicks: 1 } },
-            { new: true }
         );
         if (!playlist) return res.status(404).json({ message: 'Playlists non trouvée' });
         res.json(playlist);
