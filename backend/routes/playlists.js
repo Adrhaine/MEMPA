@@ -3,11 +3,37 @@ const router   = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Playlists = require('../models/Playlist');
 
-// GET — toutes les playlists
+// GET — toutes les playlists avec tri et/ou filtre
 router.get('/', async (req, res) => {
     try {
-        const playlists = await Playlists.find();
+        const { sortBy, order, search } = req.query;
+        // req.query récupère les paramètres dans l'URL
+        // ex: /api/playlists?sortBy=name&order=asc&search=rock
+
+        // Construction du filtre de recherche full-text
+        let filter = {};
+        if (search) {
+            // $or = cherche dans name OU style
+            // $regex = recherche partielle (contient le mot)
+            // $options: 'i' = insensible à la casse
+            filter = {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { style: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+
+        // Construction du tri
+        let sortOptions = {};
+        if (sortBy) {
+            // 1 = croissant, -1 = décroissant
+            sortOptions[sortBy] = order === 'desc' ? -1 : 1;
+        }
+
+        const playlists = await Playlists.find(filter).sort(sortOptions);
         res.json(playlists);
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
