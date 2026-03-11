@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PlaylistService } from '../../services/playlist.service';
 import { Playlist, Song } from '../../models/playlist.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-create-playlist',
@@ -12,7 +13,7 @@ import { Playlist, Song } from '../../models/playlist.model';
   templateUrl: './create-playlist.component.html',
   styleUrl: './create-playlist.component.css'
 })
-export class CreatePlaylistComponent {
+export class CreatePlaylistComponent implements OnInit {
   playlist: Playlist = {
     name: '',
     creator: '',
@@ -26,7 +27,18 @@ export class CreatePlaylistComponent {
 
   errorMessage: string = '';
 
-  constructor(private playlistService: PlaylistService, private router: Router) {}
+  constructor(
+    private playlistService: PlaylistService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.playlist.creator = user.username;
+    }
+  }
 
   addSong(): void {
     if (this.newSong.title && this.newSong.artist) {
