@@ -12,16 +12,21 @@ router.get('/', async (req, res) => {
 
         // Construction du filtre de recherche full-text
         let filter = {};
+        const conditions = [];
         if (search) {
-            // $or = cherche dans name OU style
-            // $regex = recherche partielle (contient le mot)
-            // $options: 'i' = insensible à la casse
-            filter = {
-                $or: [
-                    { name: { $regex: search, $options: 'i' } },
-                    { style: { $regex: search, $options: 'i' } }
-                ]
-            };
+            conditions.push({ name: { $regex: search, $options: 'i' } });
+        }
+        // Filtre par styles cochés (styles est une liste séparée par des virgules)
+        // ex: ?styles=Rock,Jazz
+        if (req.query.styles) {
+            const stylesArray = req.query.styles.split(',');
+            // $in = "le style est dans ce tableau"
+            conditions.push({ style: { $in: stylesArray } });
+        }
+
+        // Si on a des conditions, on les combine avec $and
+        if (conditions.length > 0) {
+            filter = { $and: conditions };
         }
 
         // Construction du tri
@@ -34,6 +39,18 @@ router.get('/', async (req, res) => {
         const playlists = await Playlists.find(filter).sort(sortOptions);
         res.json(playlists);
 
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET — liste des styles distincts présents en BDD
+// ex: ["Rock", "Jazz", "Hip-Hop"]
+router.get('/styles', async (req, res) => {
+    try {
+        // distinct() retourne un tableau des valeurs uniques d'un champ
+        const styles = await Playlists.distinct('style');
+        res.json(styles.sort()); // on trie alphabétiquement
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

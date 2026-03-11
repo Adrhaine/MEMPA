@@ -19,14 +19,18 @@ export class PlaylistService {
 
   // GET — pas besoin de token, tout le monde peut voir les playlists
   // GET — avec paramètres optionnels de tri et recherche
-  getAll(search: string = '', sortBy: string = '', order: string = 'asc'): Observable<Playlist[]> {
-    // Construction des paramètres de l'URL
+  getAll(search: string = '', sortBy: string = '', order: string = 'asc', selectedStyles: string[] = []): Observable<Playlist[]> {
     let params = new HttpParams();
-    if (search) params = params.set('search', search);
-    if (sortBy) params = params.set('sortBy', sortBy);
-    if (order) params = params.set('order', order);
+    if (search)                    params = params.set('search', search);
+    if (sortBy)                    params = params.set('sortBy', sortBy);
+    if (order)                     params = params.set('order', order);
+    if (selectedStyles.length > 0) params = params.set('styles', selectedStyles.join(','));
 
     return this.http.get<Playlist[]>(this.apiUrl, { params });
+  }
+
+  getStyles(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/styles`);
   }
 
   // GET — pas besoin de token
