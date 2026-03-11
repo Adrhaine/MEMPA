@@ -7,8 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.set('returnDocument', 'after');
-
 const MONGO_URL = process.env.NODE_ENV === 'prod'
     ? process.env.MONGO_URL_PROD
     : process.env.MONGO_URL_DEV;
