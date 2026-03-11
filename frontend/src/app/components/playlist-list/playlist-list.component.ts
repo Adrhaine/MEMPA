@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Playlist } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { StyleService } from '../../services/style.service';
 
 @Component({
   selector: 'app-playlist-list',
@@ -23,7 +24,8 @@ export class PlaylistListComponent implements OnInit {
     private playlistService: PlaylistService,
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private styleService: StyleService
   ) {}
 
   ngOnInit(): void {
@@ -74,22 +76,6 @@ export class PlaylistListComponent implements OnInit {
 
   // Retourne la classe CSS du gradient en fonction du style de musique
   getGradientClass(style: string): string {
-    const normalizedStyle = style.toLowerCase().trim();
-
-    if (normalizedStyle.includes('electro') || normalizedStyle.includes('electronic')) {
-      return 'gradient-electro';
-    } else if (normalizedStyle.includes('rock')) {
-      return 'gradient-rock';
-    } else if (normalizedStyle.includes('jazz')) {
-      return 'gradient-jazz';
-    } else if (normalizedStyle.includes('classique') || normalizedStyle.includes('classical')) {
-      return 'gradient-classique';
-    } else if (normalizedStyle.includes('pop')) {
-      return 'gradient-pop';
-    } else if (normalizedStyle.includes('hip-hop') || normalizedStyle.includes('hip hop') || normalizedStyle.includes('rap')) {
-      return 'gradient-hiphop';
-    } else {
-      return 'gradient-default';
-    }
+    return this.styleService.getGradientClass(style);
   }
 }
