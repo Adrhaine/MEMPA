@@ -1,22 +1,54 @@
-<div class="login-container">
-  <h2>Connexion</h2>
+<div class="min-h-screen bg-[#121212] flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
 
-  <!-- Message d'erreur si login échoue -->
-  @if (errorMessage) {
-    <p class="error">{{ errorMessage }}</p>
-  }
+    <!-- Logo -->
+    <div class="text-center mb-12">
+      <div class="w-16 h-16 bg-[#1DB954] rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-black font-bold text-2xl">M</span>
+      </div>
+      <h1 class="text-4xl font-bold mb-2" style="font-family: 'Playfair Display', serif">MEMPA</h1>
+      <p class="text-white/50 text-sm tracking-wide">Connectez-vous pour continuer</p>
+    </div>
 
-  <div>
-    <label>Email</label>
-    <input type="email" [(ngModel)]="email" placeholder="votre@email.com" />
+    <!-- Erreur -->
+    @if (errorMessage) {
+      <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 mb-6 rounded-lg">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <!-- Formulaire -->
+    <div class="bg-[#181818] p-8 rounded-lg space-y-5">
+      <div>
+        <label class="text-sm font-semibold text-white block mb-2">Email</label>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          placeholder="votre@email.com"
+          class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-white block mb-2">Mot de passe</label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          placeholder="••••••••"
+          class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+        />
+      </div>
+
+      <button
+        (click)="onLogin()"
+        class="w-full bg-[#1DB954] text-black font-bold py-3.5 text-sm tracking-wide hover:bg-[#1ed760] hover:scale-105 transition-all duration-200 rounded-full mt-2">
+        Se connecter
+      </button>
+    </div>
+
+    <p class="text-center text-white/50 text-sm mt-6">
+      Pas encore de compte ?
+      <a routerLink="/register" class="text-[#1DB954] hover:text-[#1ed760] underline ml-1">S'inscrire</a>
+    </p>
   </div>
-
-  <div>
-    <label>Mot de passe</label>
-    <input type="password" [(ngModel)]="password" placeholder="••••••••" />
-  </div>
-
-  <button (click)="onLogin()">Se connecter</button>
-
-  <p>Pas encore de compte ? <a routerLink="/register">S'inscrire</a></p>
 </div>

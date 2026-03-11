@@ -1,26 +1,100 @@
-<div class="container">
-  <button (click)="goBack()">← Retour</button>
+<div class="min-h-screen bg-[#121212] text-white">
 
-  @if (playlist) {
-    <h1>🎵 {{ playlist.name }}</h1>
-    <p><strong>Créateur :</strong> {{ playlist.creator }}</p>
-    <p><strong>Style :</strong> {{ playlist.style }}</p>
-    <p><strong>Clics :</strong> {{ playlist.clicks }}</p>
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5 px-8 py-4">
+    <div class="max-w-7xl mx-auto flex items-center gap-4">
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
+        <span>←</span>
+        <span class="text-sm font-medium">Retour</span>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-[#1DB954] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-black font-bold text-xs">M</span>
+        </div>
+        <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
+      </div>
+    </div>
+  </nav>
 
-    <h2>Morceaux</h2>
-    <ul>
-      @for (song of playlist.songs; track song.title) {
-        <li>{{ song.title }} — {{ song.artist }}</li>
-      }
-    </ul>
+  <!-- Main Content with fade-in -->
+  <div class="animate-fadeIn">
+    @if (playlist) {
+      <!-- Playlist Header -->
+      <div class="max-w-7xl mx-auto px-8 py-8">
+        <div class="flex flex-col md:flex-row gap-8 mb-12">
 
-    <h2>Contributeurs</h2>
-    <ul>
-      @for (contributor of playlist.contributors; track contributor) {
-        <li>{{ contributor }}</li>
-      }
-    </ul>
-  } @else {
-    <p>Chargement...</p>
-  }
+          <!-- Playlist Cover with dynamic gradient -->
+          <div
+            [ngClass]="'w-full md:w-64 h-64 rounded-lg flex items-center justify-center shadow-2xl ' + getGradientClass(playlist.style)">
+          </div>
+
+          <!-- Playlist Info -->
+          <div class="flex flex-col justify-end">
+            <p class="text-xs font-bold tracking-widest uppercase text-white/70 mb-2">Playlist</p>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-family: 'Playfair Display', serif">
+              {{ playlist.name }}
+            </h1>
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+              <span class="font-semibold">{{ playlist.creator }}</span>
+              <span class="text-white/50">•</span>
+              <span class="text-[#1DB954] font-medium">{{ playlist.style }}</span>
+              <span class="text-white/50">•</span>
+              <span class="text-white/70">{{ playlist.songs.length }} morceaux</span>
+              <span class="text-white/50">•</span>
+              <span class="text-white/70">{{ playlist.clicks }} vues</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Songs List -->
+        <div class="mb-12">
+        <div class="bg-[#181818] rounded-lg overflow-hidden">
+          <!-- Table Header -->
+          <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-white/10 text-xs font-medium text-white/50 uppercase tracking-wider">
+            <div class="w-8">#</div>
+            <div>Titre</div>
+            <div>Artiste</div>
+            <div class="w-16 text-right">Durée</div>
+          </div>
+
+          <!-- Song Rows -->
+          @for (song of playlist.songs; let i = $index; track song.title) {
+            <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#282828] transition-colors group cursor-pointer">
+              <div class="w-8 text-white/50 text-sm">{{ i + 1 }}</div>
+              <div class="font-medium truncate group-hover:text-[#1DB954] transition-colors">{{ song.title }}</div>
+              <div class="text-white/70 text-sm truncate">{{ song.artist }}</div>
+              <div class="w-16 text-right text-white/50 text-sm">--:--</div>
+            </div>
+          }
+        </div>
+      </div>
+
+        <!-- Contributors Section -->
+        @if (playlist.contributors && playlist.contributors.length > 0) {
+          <div class="max-w-3xl">
+            <h2 class="text-2xl font-bold mb-4" style="font-family: 'Playfair Display', serif">
+              Contributeurs
+            </h2>
+            <div class="flex flex-wrap gap-3">
+              @for (contributor of playlist.contributors; track contributor) {
+                <div class="bg-[#181818] px-4 py-2 rounded-full text-sm text-white/80 hover:bg-[#282828] transition-colors">
+                  {{ contributor }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Loading State -->
+      <div class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+          <div class="w-16 h-16 border-4 border-[#1DB954] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-white/50">Chargement...</p>
+        </div>
+      </div>
+    }
+  </div>
 </div>
