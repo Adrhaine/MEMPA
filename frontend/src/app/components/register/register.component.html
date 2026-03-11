@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-[#121212] flex items-center justify-center px-4">
+<div class="min-h-screen bg-[#1a1410] flex items-center justify-center px-4">
   <div class="w-full max-w-md">
 
     <!-- Logo -->
     <div class="text-center mb-12">
-      <div class="w-16 h-16 bg-[#1DB954] rounded-full flex items-center justify-center mx-auto mb-4">
-        <span class="text-black font-bold text-2xl">M</span>
+      <div class="w-16 h-16 bg-[#e8c46c] rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="text-[#1a1410] font-bold text-2xl">M</span>
       </div>
       <h1 class="text-4xl font-bold mb-2" style="font-family: 'Playfair Display', serif">MEMPA</h1>
-      <p class="text-white/50 text-sm tracking-wide">Créez votre compte pour commencer</p>
+      <p class="text-[#a89078] text-sm tracking-wide">Créez votre compte pour commencer</p>
     </div>
 
     <!-- Erreur -->
@@ -18,47 +18,50 @@
     }
 
     <!-- Formulaire -->
-    <div class="bg-[#181818] p-8 rounded-lg space-y-5">
+    <div class="bg-[#2a1f15] p-8 rounded-lg space-y-5">
       <div>
-        <label class="text-sm font-semibold text-white block mb-2">Nom d'utilisateur</label>
+        <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Nom d'utilisateur</label>
         <input
           type="text"
           [(ngModel)]="username"
-          placeholder="JohnDoe"
-          class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+          placeholder="Votre username"
+          class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
         />
       </div>
 
       <div>
-        <label class="text-sm font-semibold text-white block mb-2">Email</label>
+        <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Email</label>
         <input
           type="email"
           [(ngModel)]="email"
           placeholder="votre@email.com"
-          class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+          class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
         />
       </div>
 
       <div>
-        <label class="text-sm font-semibold text-white block mb-2">Mot de passe</label>
+        <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Mot de passe</label>
         <input
           type="password"
           [(ngModel)]="password"
           placeholder="••••••••"
-          class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+          class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
         />
+        <p class="text-white/30 text-xs mt-2">
+          Minimum 8 caractères avec : une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&)
+        </p>
       </div>
 
       <button
         (click)="onRegister()"
-        class="w-full bg-[#1DB954] text-black font-bold py-3.5 text-sm tracking-wide hover:bg-[#1ed760] hover:scale-105 transition-all duration-200 rounded-full mt-2">
+        class="w-full bg-[#e8c46c] text-[#1a1410] font-bold py-3.5 text-sm tracking-wide hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full mt-2">
         Créer mon compte
       </button>
     </div>
 
-    <p class="text-center text-white/50 text-sm mt-6">
+    <p class="text-center text-[#a89078] text-sm mt-6">
       Déjà un compte ?
-      <a routerLink="/login" class="text-[#1DB954] hover:text-[#1ed760] underline ml-1">Se connecter</a>
+      <a routerLink="/login" class="text-[#e8c46c] hover:text-[#f0d080] underline ml-1">Se connecter</a>
     </p>
   </div>
 </div>

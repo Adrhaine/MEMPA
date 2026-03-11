@@ -1,17 +1,17 @@
-<div class="min-h-screen bg-[#121212] text-white">
+<div class="min-h-screen bg-[#1a1410] text-[#f5e6d3]">
 
   <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5 px-8 py-4">
+  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
     <div class="max-w-7xl mx-auto flex items-center gap-4">
       <button
         (click)="goBack()"
-        class="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
+        class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors">
         <span>←</span>
         <span class="text-sm font-medium">Retour</span>
       </button>
       <div class="flex items-center gap-2">
-        <div class="w-7 h-7 bg-[#1DB954] rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="text-black font-bold text-xs">M</span>
+        <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-[#1a1410] font-bold text-xs">M</span>
         </div>
         <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
       </div>
@@ -25,50 +25,50 @@
       <h1 class="text-5xl font-bold mb-2" style="font-family: 'Playfair Display', serif">
         Créer une playlist
       </h1>
-      <p class="text-white/50 text-sm">Remplissez les informations ci-dessous pour créer votre playlist</p>
+      <p class="text-[#a89078] text-sm">Remplissez les informations ci-dessous pour créer votre playlist</p>
     </div>
 
     <!-- Main Form Card -->
-    <div class="bg-[#181818] rounded-lg p-8 mb-6">
+    <div class="bg-[#2a1f15] rounded-lg p-8 mb-6">
       <!-- Playlist Info Form -->
       <div class="space-y-5 mb-8">
         <div>
-          <label class="text-sm font-semibold text-white block mb-2">Nom de la playlist</label>
+          <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Nom de la playlist</label>
           <input
             [(ngModel)]="playlist.name"
             placeholder="Ma super playlist"
-            class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+            class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
           />
         </div>
 
         <div>
-          <label class="text-sm font-semibold text-white block mb-2">Créateur</label>
+          <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Créateur</label>
           <input
             [(ngModel)]="playlist.creator"
             placeholder="Ton nom"
-            class="w-full bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+            class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
           />
         </div>
 
         <div>
-          <label class="text-sm font-semibold text-white block mb-2">Style de musique</label>
+          <label class="text-sm font-semibold text-[#f5e6d3] block mb-2">Style de musique</label>
           <select
             [(ngModel)]="playlist.style"
-            class="w-full bg-[#121212] border border-[#2a2a2a] text-white px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all cursor-pointer">
-            <option value="" disabled selected class="bg-[#121212]">Sélectionnez un style...</option>
-            <option value="Rock" class="bg-[#121212]">Rock</option>
-            <option value="Pop" class="bg-[#121212]">Pop</option>
-            <option value="Jazz" class="bg-[#121212]">Jazz</option>
-            <option value="Electro" class="bg-[#121212]">Electro</option>
-            <option value="Hip-Hop" class="bg-[#121212]">Hip-Hop</option>
-            <option value="Classique" class="bg-[#121212]">Classique</option>
-            <option value="Autre" class="bg-[#121212]">Autre</option>
+            class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all cursor-pointer">
+            <option value="" disabled selected class="bg-[#1a1410]">Sélectionnez un style...</option>
+            <option value="Rock" class="bg-[#1a1410]">Rock</option>
+            <option value="Pop" class="bg-[#1a1410]">Pop</option>
+            <option value="Jazz" class="bg-[#1a1410]">Jazz</option>
+            <option value="Electro" class="bg-[#1a1410]">Electro</option>
+            <option value="Hip-Hop" class="bg-[#1a1410]">Hip-Hop</option>
+            <option value="Classique" class="bg-[#1a1410]">Classique</option>
+            <option value="Autre" class="bg-[#1a1410]">Autre</option>
           </select>
         </div>
       </div>
 
       <!-- Add Songs Section -->
-      <div class="border-t border-white/10 pt-8">
+      <div class="border-t border-[#3d2d1e] pt-8">
         <h2 class="text-2xl font-bold mb-6" style="font-family: 'Playfair Display', serif">
           Ajouter des morceaux
         </h2>
@@ -78,16 +78,16 @@
           <input
             [(ngModel)]="newSong.title"
             placeholder="Titre du morceau"
-            class="flex-1 bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+            class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
           />
           <input
             [(ngModel)]="newSong.artist"
             placeholder="Artiste"
-            class="flex-1 bg-[#121212] border border-[#2a2a2a] text-white placeholder-white/30 px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954] transition-all"
+            class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
           />
           <button
             (click)="addSong()"
-            class="px-6 py-3 bg-[#1DB954] text-black font-semibold text-sm hover:bg-[#1ed760] hover:scale-105 transition-all duration-200 rounded-full whitespace-nowrap">
+            class="px-6 py-3 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full whitespace-nowrap">
             + Ajouter
           </button>
         </div>
@@ -96,24 +96,24 @@
         @if (playlist.songs.length > 0) {
           <div class="space-y-2">
             @for (song of playlist.songs; let i = $index; track song.title) {
-              <div class="flex items-center justify-between bg-[#121212] px-4 py-3 rounded-lg hover:bg-[#1a1a1a] transition-colors group">
+              <div class="flex items-center justify-between bg-[#1a1410] px-4 py-3 rounded-lg hover:bg-[#241a10] transition-colors group">
                 <div class="flex items-center gap-4 flex-1">
-                  <span class="text-white/40 text-sm w-6">{{ i + 1 }}</span>
+                  <span class="text-[#7a6050] text-sm w-6">{{ i + 1 }}</span>
                   <div class="flex-1">
-                    <p class="font-medium text-white">{{ song.title }}</p>
-                    <p class="text-sm text-white/60">{{ song.artist }}</p>
+                    <p class="font-medium text-[#f5e6d3]">{{ song.title }}</p>
+                    <p class="text-sm text-[#a89078]">{{ song.artist }}</p>
                   </div>
                 </div>
                 <button
                   (click)="removeSong(i)"
-                  class="w-8 h-8 flex items-center justify-center text-white/40 hover:text-red-400 hover:bg-red-400/10 rounded-full transition-all opacity-0 group-hover:opacity-100">
+                  class="w-8 h-8 flex items-center justify-center text-[#7a6050] hover:text-red-400 hover:bg-red-400/10 rounded-full transition-all opacity-0 group-hover:opacity-100">
                   ✕
                 </button>
               </div>
             }
           </div>
         } @else {
-          <div class="text-center py-8 text-white/30 bg-[#121212] rounded-lg border border-dashed border-white/10">
+          <div class="text-center py-8 text-[#7a6050] bg-[#1a1410] rounded-lg border border-dashed border-[#3d2d1e]">
             <p class="text-3xl mb-2">🎵</p>
             <p class="text-sm">Aucun morceau ajouté</p>
           </div>
@@ -125,7 +125,7 @@
     <div class="flex justify-center">
       <button
         (click)="submit()"
-        class="px-8 py-3 bg-[#1DB954] text-black font-semibold text-sm hover:bg-[#1ed760] transition-colors rounded-full">
+        class="px-8 py-3 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] transition-colors rounded-full">
         Créer la playlist
       </button>
     </div>

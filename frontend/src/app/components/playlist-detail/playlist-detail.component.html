@@ -1,17 +1,17 @@
-<div class="min-h-screen bg-[#121212] text-white">
+<div class="min-h-screen bg-[#1a1410] text-[#f5e6d3]">
 
   <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5 px-8 py-4">
+  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
     <div class="max-w-7xl mx-auto flex items-center gap-4">
       <button
         (click)="goBack()"
-        class="flex items-center gap-2 text-white/50 hover:text-white transition-colors">
+        class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors">
         <span>←</span>
         <span class="text-sm font-medium">Retour</span>
       </button>
       <div class="flex items-center gap-2">
-        <div class="w-7 h-7 bg-[#1DB954] rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="text-black font-bold text-xs">M</span>
+        <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-[#1a1410] font-bold text-xs">M</span>
         </div>
         <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
       </div>
@@ -32,27 +32,27 @@
 
           <!-- Playlist Info -->
           <div class="flex flex-col justify-end">
-            <p class="text-xs font-bold tracking-widest uppercase text-white/70 mb-2">Playlist</p>
+            <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>
             <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-family: 'Playfair Display', serif">
               {{ playlist.name }}
             </h1>
             <div class="flex items-center gap-2 text-sm flex-wrap">
               <span class="font-semibold">{{ playlist.creator }}</span>
-              <span class="text-white/50">•</span>
-              <span class="text-[#1DB954] font-medium">{{ playlist.style }}</span>
-              <span class="text-white/50">•</span>
-              <span class="text-white/70">{{ playlist.songs.length }} morceaux</span>
-              <span class="text-white/50">•</span>
-              <span class="text-white/70">{{ playlist.clicks }} vues</span>
+              <span class="text-[#a89078]">•</span>
+              <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
+              <span class="text-[#a89078]">•</span>
+              <span class="text-[#a89078]">{{ playlist.songs.length }} morceaux</span>
+              <span class="text-[#a89078]">•</span>
+              <span class="text-[#a89078]">{{ playlist.clicks }} vues</span>
             </div>
           </div>
         </div>
 
         <!-- Songs List -->
         <div class="mb-12">
-        <div class="bg-[#181818] rounded-lg overflow-hidden">
+        <div class="bg-[#2a1f15] rounded-lg overflow-hidden">
           <!-- Table Header -->
-          <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-white/10 text-xs font-medium text-white/50 uppercase tracking-wider">
+          <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-[#3d2d1e] text-xs font-medium text-[#a89078] uppercase tracking-wider">
             <div class="w-8">#</div>
             <div>Titre</div>
             <div>Artiste</div>
@@ -61,11 +61,11 @@
 
           <!-- Song Rows -->
           @for (song of playlist.songs; let i = $index; track song.title) {
-            <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#282828] transition-colors group cursor-pointer">
-              <div class="w-8 text-white/50 text-sm">{{ i + 1 }}</div>
-              <div class="font-medium truncate group-hover:text-[#1DB954] transition-colors">{{ song.title }}</div>
-              <div class="text-white/70 text-sm truncate">{{ song.artist }}</div>
-              <div class="w-16 text-right text-white/50 text-sm">--:--</div>
+            <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
+              <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
+              <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>
+              <div class="text-[#a89078] text-sm truncate">{{ song.artist }}</div>
+              <div class="w-16 text-right text-[#a89078] text-sm">--:--</div>
             </div>
           }
         </div>
@@ -79,7 +79,7 @@
             </h2>
             <div class="flex flex-wrap gap-3">
               @for (contributor of playlist.contributors; track contributor) {
-                <div class="bg-[#181818] px-4 py-2 rounded-full text-sm text-white/80 hover:bg-[#282828] transition-colors">
+                <div class="bg-[#2a1f15] px-4 py-2 rounded-full text-sm text-[#a89078] hover:bg-[#3d2d1e] transition-colors">
                   {{ contributor }}
                 </div>
               }
@@ -91,8 +91,8 @@
       <!-- Loading State -->
       <div class="flex items-center justify-center min-h-[60vh]">
         <div class="text-center">
-          <div class="w-16 h-16 border-4 border-[#1DB954] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p class="text-white/50">Chargement...</p>
+          <div class="w-16 h-16 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-[#a89078]">Chargement...</p>
         </div>
       </div>
     }
