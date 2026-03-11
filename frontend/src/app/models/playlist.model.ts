@@ -11,4 +11,7 @@ export interface Playlist {
   songs: Song[];
   contributors: string[];
   style: string;
+  createdBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
