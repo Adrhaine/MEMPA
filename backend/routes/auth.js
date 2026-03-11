@@ -9,22 +9,28 @@ router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
+        // Validation email avec regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Email invalide' });
+        }
+
+        // Validation mot de passe
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&)'
+            });
+        }
+
         // Vérifier si l'email existe déjà
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Cet email est déjà utilisé' });
         }
 
-        // Hasher le mot de passe (10 = niveau de complexité du hash)
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Créer l'utilisateur avec le mot de passe hashé
-        const user = new User({
-            username,
-            email,
-            password: hashedPassword
-        });
-
+        const user = new User({ username, email, password: hashedPassword });
         await user.save();
 
         res.status(201).json({ message: 'Compte créé avec succès' });
