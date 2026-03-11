@@ -20,6 +20,9 @@ export class PlaylistListComponent implements OnInit {
   sortBy: string = '';
   order: string = 'asc';
 
+  availableStyles: string[] = [];
+  selectedStyles: string[] = [];
+
   constructor(
     private playlistService: PlaylistService,
     private authService: AuthService,
@@ -29,14 +32,35 @@ export class PlaylistListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // On charge les styles disponibles au démarrage
+    this.playlistService.getStyles().subscribe((styles: string[]) => {
+      this.availableStyles = styles;
+      this.cdr.detectChanges();
+    });
+    this.loadPlaylists();
+  }
+
+  onStyleToggle(style: string): void {
+    const index = this.selectedStyles.indexOf(style);
+    if (index === -1) {
+      // Pas encore coché → on l'ajoute
+      this.selectedStyles.push(style);
+    } else {
+      // Déjà coché → on le retire
+      this.selectedStyles.splice(index, 1);
+    }
     this.loadPlaylists();
   }
 
   loadPlaylists(): void {
-    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order).subscribe((data: Playlist[]) => {
+    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe((data: Playlist[]) => {
       this.playlists = data;
       this.cdr.detectChanges();
     });
+  }
+
+  isStyleSelected(style: string): boolean {
+    return this.selectedStyles.includes(style);
   }
 
   onSearch(): void { this.loadPlaylists(); }
@@ -52,6 +76,7 @@ export class PlaylistListComponent implements OnInit {
     this.searchTerm = '';
     this.sortBy = '';
     this.order = 'asc';
+    this.selectedStyles = [];
     this.loadPlaylists();
   }
 

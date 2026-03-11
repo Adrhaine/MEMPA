@@ -58,7 +58,7 @@
         class="flex-1 bg-[#241a10] border-0 text-[#f5e6d3] placeholder-[#7a6050] px-5 py-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
       />
       <div class="flex gap-2 items-center">
-        @for (btn of [{label: 'Nom', field: 'name'}, {label: 'Clics', field: 'clicks'}, {label: 'Style', field: 'style'}]; track btn.field) {
+        @for (btn of [{label: 'Nom', field: 'name'}, {label: 'Clics', field: 'clicks'}]; track btn.field) {
           <button
             (click)="onSort(btn.field)"
             [class]="sortBy === btn.field
@@ -72,6 +72,24 @@
         </button>
       </div>
     </div>
+
+    <!-- Filtres par style -->
+    @if (availableStyles.length > 0) {
+      <div class="flex flex-wrap gap-2 items-center mb-8">
+        <span class="text-[#7a6050] text-xs uppercase tracking-widest mr-1">Styles :</span>
+        @for (style of availableStyles; track style) {
+          <button
+            (click)="onStyleToggle(style)"
+            [class]="isStyleSelected(style)
+          ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
+          : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
+            <span [class]="'w-2 h-2 rounded-full ' + getGradientClass(style)"></span>
+            {{ style }}
+            @if (isStyleSelected(style)) { <span>✕</span> }
+          </button>
+        }
+      </div>
+    }
 
     <!-- Titre section -->
     <div class="flex items-center justify-between mb-6">
