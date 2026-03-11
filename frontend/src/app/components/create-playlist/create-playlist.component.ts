@@ -24,6 +24,8 @@ export class CreatePlaylistComponent {
 
   newSong: Song = { title: '', artist: '' };
 
+  errorMessage: string = '';
+
   constructor(private playlistService: PlaylistService, private router: Router) {}
 
   addSong(): void {
@@ -39,8 +41,9 @@ export class CreatePlaylistComponent {
 
   submit(): void {
     if (this.playlist.name && this.playlist.creator && this.playlist.style) {
-      this.playlistService.create(this.playlist).subscribe(() => {
-        this.router.navigate(['/']);
+      this.playlistService.create(this.playlist).subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (err) => this.errorMessage = err.error?.message || 'Erreur lors de la création'
       });
     }
   }
