@@ -24,9 +24,12 @@ export class PlaylistDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.playlistService.getById(id).subscribe(data => {
-        this.playlist = data;
-        this.cdr.detectChanges();
+      this.playlistService.getById(id).subscribe({
+        next: (data) => {
+          this.playlist = data;
+          this.cdr.detectChanges();
+        },
+        error: () => this.router.navigate(['/']) // redirige si playlist introuvable
       });
     }
   }
