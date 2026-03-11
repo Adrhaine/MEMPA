@@ -24,9 +24,12 @@ router.post('/register', async (req, res) => {
         }
 
         // Vérifier si l'email existe déjà
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
-            return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+            const message = existingUser.email === email
+                ? 'Cet email est déjà utilisé'
+                : 'Ce nom d\'utilisateur est déjà pris';
+            return res.status(400).json({ message });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);

@@ -28,6 +28,12 @@
       <p class="text-[#a89078] text-sm">Remplissez les informations ci-dessous pour créer votre playlist</p>
     </div>
 
+    @if (errorMessage) {
+      <div class="border border-red-500/30 bg-red-500/10 text-red-400 text-sm px-4 py-3 mb-6 rounded-md">
+        {{ errorMessage }}
+      </div>
+    }
+
     <!-- Main Form Card -->
     <div class="bg-[#2a1f15] rounded-lg p-8 mb-6">
       <!-- Playlist Info Form -->
