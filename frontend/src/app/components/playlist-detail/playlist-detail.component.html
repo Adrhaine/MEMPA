@@ -18,25 +18,51 @@
     </div>
   </nav>
 
-  <!-- Main Content with fade-in -->
+  <!-- Modale de confirmation suppression -->
+  @if (showDeleteConfirm) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div class="bg-[#2a1f15] rounded-lg p-8 max-w-sm w-full border border-[#3d2d1e]">
+        <h2 class="text-xl font-bold mb-2" style="font-family: 'Playfair Display', serif">
+          Supprimer la playlist ?
+        </h2>
+        <p class="text-[#a89078] text-sm mb-6">
+          Cette action est irréversible. La playlist
+          <span class="text-[#f5e6d3] font-medium">{{ playlist?.name }}</span>
+          sera définitivement supprimée.
+        </p>
+        <div class="flex gap-3">
+          <button
+            (click)="cancelDelete()"
+            class="flex-1 px-4 py-2.5 bg-[#1a1410] text-[#a89078] text-sm font-medium hover:bg-[#3d2d1e] hover:text-[#f5e6d3] transition-all rounded-full">
+            Annuler
+          </button>
+          <button
+            (click)="confirmDelete()"
+            class="flex-1 px-4 py-2.5 bg-red-500/80 text-white text-sm font-semibold hover:bg-red-500 transition-all rounded-full">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Main Content -->
   <div class="animate-fadeIn">
     @if (playlist) {
-      <!-- Playlist Header -->
+
       <div class="max-w-7xl mx-auto px-8 py-8">
         <div class="flex flex-col md:flex-row gap-8 mb-12">
 
-          <!-- Playlist Cover with dynamic gradient -->
-          <div
-            [ngClass]="'w-full md:w-64 h-64 rounded-lg flex items-center justify-center shadow-2xl ' + getGradientClass(playlist.style)">
-          </div>
+          <!-- Cover -->
+          <div [ngClass]="'w-full md:w-64 h-64 rounded-lg shadow-2xl ' + getGradientClass(playlist.style)"></div>
 
-          <!-- Playlist Info -->
-          <div class="flex flex-col justify-end">
+          <!-- Infos + Actions -->
+          <div class="flex flex-col justify-end flex-1">
             <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>
             <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-family: 'Playfair Display', serif">
               {{ playlist.name }}
             </h1>
-            <div class="flex items-center gap-2 text-sm flex-wrap">
+            <div class="flex items-center gap-2 text-sm flex-wrap mb-6">
               <span class="font-semibold">{{ playlist.creator }}</span>
               <span class="text-[#a89078]">•</span>
               <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
@@ -45,50 +71,98 @@
               <span class="text-[#a89078]">•</span>
               <span class="text-[#a89078]">{{ playlist.clicks }} vues</span>
             </div>
-          </div>
-        </div>
 
-        <!-- Songs List -->
-        <div class="mb-12">
-        <div class="bg-[#2a1f15] rounded-lg overflow-hidden">
-          <!-- Table Header -->
-          <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-[#3d2d1e] text-xs font-medium text-[#a89078] uppercase tracking-wider">
-            <div class="w-8">#</div>
-            <div>Titre</div>
-            <div>Artiste</div>
-            <div class="w-16 text-right">Durée</div>
-          </div>
-
-          <!-- Song Rows -->
-          @for (song of playlist.songs; let i = $index; track song.title) {
-            <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
-              <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
-              <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>
-              <div class="text-[#a89078] text-sm truncate">{{ song.artist }}</div>
-              <div class="w-16 text-right text-[#a89078] text-sm">--:--</div>
-            </div>
-          }
-        </div>
-      </div>
-
-        <!-- Contributors Section -->
-        @if (playlist.contributors && playlist.contributors.length > 0) {
-          <div class="max-w-3xl">
-            <h2 class="text-2xl font-bold mb-4" style="font-family: 'Playfair Display', serif">
-              Contributeurs
-            </h2>
+            <!-- Boutons d'action -->
             <div class="flex flex-wrap gap-3">
-              @for (contributor of playlist.contributors; track contributor) {
-                <div class="bg-[#2a1f15] px-4 py-2 rounded-full text-sm text-[#a89078] hover:bg-[#3d2d1e] transition-colors">
-                  {{ contributor }}
-                </div>
+              <!-- Visible pour tout utilisateur connecté -->
+              @if (isLoggedIn()) {
+                <button
+                  (click)="toggleAddSongForm()"
+                  class="px-5 py-2.5 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
+                  {{ showAddSongForm ? '✕ Annuler' : '+ Ajouter un morceau' }}
+                </button>
+              }
+
+              <!-- Visible uniquement pour le créateur de la playlist -->
+              @if (isCreator()) {
+                <button
+                  (click)="openDeleteConfirm()"
+                  class="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 font-semibold text-sm hover:bg-red-500/20 transition-all rounded-full">
+                  Supprimer la playlist
+                </button>
               }
             </div>
           </div>
+        </div>
+
+        <!-- Messages de feedback -->
+        @if (errorMessage) {
+          <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 mb-6 rounded-lg">
+            {{ errorMessage }}
+          </div>
         }
+        @if (successMessage) {
+          <div class="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 mb-6 rounded-lg">
+            {{ successMessage }}
+          </div>
+        }
+
+        <!-- Formulaire ajout de morceau -->
+        @if (showAddSongForm) {
+          <div class="bg-[#2a1f15] rounded-lg p-6 mb-8 border border-[#3d2d1e]">
+            <h3 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+              Ajouter un morceau
+            </h3>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input
+                [(ngModel)]="newSong.title"
+                placeholder="Titre du morceau"
+                class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
+              />
+              <input
+                [(ngModel)]="newSong.artist"
+                placeholder="Artiste"
+                class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
+              />
+              <button
+                (click)="onAddSong()"
+                class="px-6 py-3 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full whitespace-nowrap">
+                Confirmer
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Liste des morceaux -->
+        <div class="mb-12">
+          <div class="bg-[#2a1f15] rounded-lg overflow-hidden">
+            <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-3 border-b border-[#3d2d1e] text-xs font-medium text-[#a89078] uppercase tracking-wider">
+              <div class="w-8">#</div>
+              <div>Titre</div>
+              <div>Artiste</div>
+              <div class="w-16 text-right">Durée</div>
+            </div>
+
+            @for (song of playlist.songs; let i = $index; track song.title) {
+              <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
+                <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
+                <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>
+                <div class="text-[#a89078] text-sm truncate">{{ song.artist }}</div>
+                <div class="w-16 text-right text-[#a89078] text-sm">--:--</div>
+              </div>
+            }
+
+            @if (playlist.songs.length === 0) {
+              <div class="text-center py-12 text-[#7a6050]">
+                <p class="text-3xl mb-2">🎵</p>
+                <p class="text-sm">Aucun morceau dans cette playlist</p>
+              </div>
+            }
+          </div>
+        </div>
       </div>
+
     } @else {
-      <!-- Loading State -->
       <div class="flex items-center justify-center min-h-[60vh]">
         <div class="text-center">
           <div class="w-16 h-16 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
