@@ -1,18 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PlaylistService } from '../../services/playlist';
+import { PlaylistService } from '../../services/playlist.service';
 import { Playlist, Song } from '../../models/playlist.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-create-playlist',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './create-playlist.html',
-  styleUrl: './create-playlist.css'
+  templateUrl: './create-playlist.component.html',
+  styleUrl: './create-playlist.component.css'
 })
-export class CreatePlaylistComponent {
+export class CreatePlaylistComponent implements OnInit {
   playlist: Playlist = {
     name: '',
     creator: '',
@@ -24,7 +25,20 @@ export class CreatePlaylistComponent {
 
   newSong: Song = { title: '', artist: '' };
 
-  constructor(private playlistService: PlaylistService, private router: Router) {}
+  errorMessage: string = '';
+
+  constructor(
+    private playlistService: PlaylistService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.playlist.creator = user.username;
+    }
+  }
 
   addSong(): void {
     if (this.newSong.title && this.newSong.artist) {
@@ -39,8 +53,9 @@ export class CreatePlaylistComponent {
 
   submit(): void {
     if (this.playlist.name && this.playlist.creator && this.playlist.style) {
-      this.playlistService.create(this.playlist).subscribe(() => {
-        this.router.navigate(['/']);
+      this.playlistService.create(this.playlist).subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (err) => this.errorMessage = err.error?.message || 'Erreur lors de la création'
       });
     }
   }
