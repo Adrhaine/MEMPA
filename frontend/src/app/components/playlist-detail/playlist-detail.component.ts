@@ -1,23 +1,41 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../services/playlist.service';
-import { Playlist } from '../../models/playlist.model';
+import { AuthService } from '../../services/auth.service';
+import { Playlist, Song } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
+
 
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule], // FormsModule ajouté pour le formulaire d'ajout
   templateUrl: './playlist-detail.component.html',
   styleUrl: './playlist-detail.component.css'
 })
 export class PlaylistDetailComponent implements OnInit {
   playlist: Playlist | null = null;
 
+
+  // Contrôle l'affichage du formulaire d'ajout de morceau
+  showAddSongForm: boolean = false;
+
+  // Modèle lié au formulaire d'ajout
+  newSong: Song = { title: '', artist: '' };
+
+  // Messages de feedback utilisateur
+  errorMessage: string = '';
+  successMessage: string = '';
+
+  // Contrôle l'affichage de la modale de confirmation de suppression
+  showDeleteConfirm: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private playlistService: PlaylistService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private styleService: StyleService
@@ -31,16 +49,86 @@ export class PlaylistDetailComponent implements OnInit {
           this.playlist = data;
           this.cdr.detectChanges();
         },
-        error: () => this.router.navigate(['/']) // redirige si playlist introuvable
+        error: () => this.router.navigate(['/'])
       });
     }
   }
 
-  goBack(): void {
-    this.router.navigate(['/']);
+  // Vérifie si l'utilisateur est connecté
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
-  // Retourne la classe CSS du gradient en fonction du style de musique
+  // Vérifie si l'utilisateur connecté est le créateur de cette playlist
+  isCreator(): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.playlist) return false;
+    return this.playlist.createdBy === currentUser.id;
+  }
+
+  // Récupère les contributeurs
+  getAuthors(): string {
+    if (!this.playlist) return '';
+    const contributors = this.playlist.contributors ?? [];
+
+    const creator = `<span class="font-semibold text-[#f5e6d3]">${this.playlist.creator}</span>`;
+
+    if (contributors.length === 0) return creator;
+
+    const last = contributors[contributors.length - 1];
+    const others = contributors.slice(0, -1);
+    const contribStr = others.length > 0
+      ? `${others.join(', ')} et ${last}`
+      : last;
+
+    return `${creator}<span class="text-[#f5e6d3]"> · ${contribStr}</span>`;
+  }
+
+  // Ouvre/ferme le formulaire et réinitialise les champs
+  toggleAddSongForm(): void {
+    this.showAddSongForm = !this.showAddSongForm;
+    this.newSong = { title: '', artist: '' };
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  // Envoie le nouveau morceau au backend
+  onAddSong(): void {
+    if (!this.newSong.title || !this.newSong.artist) {
+      this.errorMessage = 'Veuillez remplir le titre et l\'artiste';
+      return;
+    }
+
+    this.playlistService.addSongs(this.playlist!._id!, [this.newSong]).subscribe({
+      next: (updatedPlaylist) => {
+        this.playlist = updatedPlaylist;
+        this.newSong = { title: '', artist: '' };
+        this.successMessage = 'Morceau ajouté avec succès !';
+        this.errorMessage = '';
+        this.showAddSongForm = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Erreur lors de l\'ajout';
+      }
+    });
+  }
+
+  openDeleteConfirm(): void  { this.showDeleteConfirm = true; }
+  cancelDelete(): void       { this.showDeleteConfirm = false; }
+
+  confirmDelete(): void {
+    this.playlistService.delete(this.playlist!._id!).subscribe({
+      next: () => this.router.navigate(['/']),
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Erreur lors de la suppression';
+        this.showDeleteConfirm = false;
+      }
+    });
+  }
+
+  goBack(): void { this.router.navigate(['/']); }
+
   getGradientClass(style: string): string {
     return this.styleService.getGradientClass(style);
   }

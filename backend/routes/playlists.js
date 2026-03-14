@@ -8,7 +8,6 @@ router.get('/', async (req, res) => {
     try {
         const { sortBy, order, search } = req.query;
         // req.query récupère les paramètres dans l'URL
-        // ex: /api/playlists?sortBy=name&order=asc&search=rock
 
         // Construction du filtre de recherche full-text
         let filter = {};
@@ -44,8 +43,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET — liste des styles distincts présents en BDD
-// ex: ["Rock", "Jazz", "Hip-Hop"]
+// GET — liste des styles distincts présents
 router.get('/styles', async (req, res) => {
     try {
         // distinct() retourne un tableau des valeurs uniques d'un champ
@@ -83,6 +81,62 @@ router.post('/', authMiddleware, async (req, res) => {
         res.status(201).json(saved);
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+});
+
+// DELETE — supprimer une playlist (protégée, créateur uniquement)
+router.delete('/:id', authMiddleware, async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        // On vérifie que l'utilisateur connecté est bien le créateur
+        if (playlist.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Vous n\'êtes pas autorisé à supprimer cette playlist' });
+        }
+
+        await Playlists.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Playlist supprimée avec succès' });
+
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+// PATCH — ajouter un ou plusieurs morceaux (protégée, tout utilisateur connecté)
+router.patch('/:id/songs', authMiddleware, async (req, res) => {
+    try {
+        const { songs } = req.body;
+
+        if (!songs || !Array.isArray(songs) || songs.length === 0) {
+            return res.status(400).json({ message: 'Aucun morceau fourni' });
+        }
+
+        // $push + $each = ajoute tous les éléments du tableau en une seule opération
+        const updatedPlaylist = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            {
+                // Ajoute les morceaux au tableau songs
+                $push: { songs: { $each: songs } },
+                // Ajoute l'username aux contributeurs SEULEMENT s'il n'est pas déjà présent
+                // $addToSet = équivalent d'un Set : pas de doublons
+                $addToSet: { contributors: req.user.username }
+            },
+            { new: true }
+        );
+
+        if (!updatedPlaylist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        res.json(updatedPlaylist);
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
