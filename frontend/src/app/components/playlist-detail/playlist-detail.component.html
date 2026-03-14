@@ -63,7 +63,7 @@
               {{ playlist.name }}
             </h1>
             <div class="flex items-center gap-2 text-sm flex-wrap mb-6">
-              <span class="font-semibold">{{ playlist.creator }}</span>
+              <span [innerHTML]="getAuthors()"></span>
               <span class="text-[#a89078]">•</span>
               <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
               <span class="text-[#a89078]">•</span>

@@ -66,6 +66,24 @@ export class PlaylistDetailComponent implements OnInit {
     return this.playlist.createdBy === currentUser.id;
   }
 
+  // Récupère les contributeurs
+  getAuthors(): string {
+    if (!this.playlist) return '';
+    const contributors = this.playlist.contributors ?? [];
+
+    const creator = `<span class="font-semibold text-[#f5e6d3]">${this.playlist.creator}</span>`;
+
+    if (contributors.length === 0) return creator;
+
+    const last = contributors[contributors.length - 1];
+    const others = contributors.slice(0, -1);
+    const contribStr = others.length > 0
+      ? `${others.join(', ')} et ${last}`
+      : last;
+
+    return `${creator}<span class="text-[#f5e6d3]"> · ${contribStr}</span>`;
+  }
+
   // Ouvre/ferme le formulaire et réinitialise les champs
   toggleAddSongForm(): void {
     this.showAddSongForm = !this.showAddSongForm;

@@ -119,7 +119,13 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
         // $push + $each = ajoute tous les éléments du tableau en une seule opération
         const updatedPlaylist = await Playlists.findByIdAndUpdate(
             req.params.id,
-            { $push: { songs: { $each: songs } } },
+            {
+                // Ajoute les morceaux au tableau songs
+                $push: { songs: { $each: songs } },
+                // Ajoute l'username aux contributeurs SEULEMENT s'il n'est pas déjà présent
+                // $addToSet = équivalent d'un Set : pas de doublons
+                $addToSet: { contributors: req.user.username }
+            },
             { new: true }
         );
 
