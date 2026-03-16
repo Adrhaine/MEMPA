@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlaylistDetail } from './playlist-detail';
+import { PlaylistDetail } from './playlist-detail.component';
 
 describe('PlaylistDetail', () => {
   let component: PlaylistDetail;
