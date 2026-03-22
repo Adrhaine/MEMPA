@@ -60,7 +60,7 @@ router.get('/:id', async (req, res) => {
         const playlist = await Playlists.findByIdAndUpdate(
             req.params.id,
             { $inc: { clicks: 1 } },
-            { new: true }
+            { returnDocument: 'after' }
 
         );
         if (!playlist) return res.status(404).json({ message: 'Playlists non trouvée' });
@@ -126,7 +126,7 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
                 // $addToSet = équivalent d'un Set : pas de doublons
                 $addToSet: { contributors: req.user.username }
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!updatedPlaylist) {
