@@ -116,22 +116,28 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'Aucun morceau fourni' });
         }
 
-        // $push + $each = ajoute tous les éléments du tableau en une seule opération
-        const updatedPlaylist = await Playlists.findByIdAndUpdate(
-            req.params.id,
-            {
-                // Ajoute les morceaux au tableau songs
-                $push: { songs: { $each: songs } },
-                // Ajoute l'username aux contributeurs SEULEMENT s'il n'est pas déjà présent
-                // $addToSet = équivalent d'un Set : pas de doublons
-                $addToSet: { contributors: req.user.username }
-            },
-            { returnDocument: 'after' }
-        );
-
-        if (!updatedPlaylist) {
+        // On récupère la playlist pour vérifier le créateur
+        const playlist = await Playlists.findById(req.params.id).exec();
+        if (!playlist) {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
+
+        // Construction de l'update
+        const update = {
+            $push: { songs: { $each: songs } }
+        };
+
+        // On ajoute aux contributeurs seulement si ce n'est pas le créateur
+        if (playlist.creator !== req.user.username) {
+            //On utilise le addToSet pour pas faire de doublon
+            update.$addToSet = { contributors: req.user.username };
+        }
+
+        const updatedPlaylist = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            update,
+            { returnDocument: 'after' }
+        );
 
         res.json(updatedPlaylist);
 
