@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ export class RegisterComponent {
   password: string = '';
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   onRegister(): void {
     // Validation email
@@ -41,6 +41,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.errorMessage = err.error.message || 'Erreur lors de l\'inscription';
+        this.cdr.detectChanges();
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,8 @@ export class CreatePlaylistComponent implements OnInit {
   constructor(
     private playlistService: PlaylistService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +56,10 @@ export class CreatePlaylistComponent implements OnInit {
     if (this.playlist.name && this.playlist.creator && this.playlist.style) {
       this.playlistService.create(this.playlist).subscribe({
         next: () => this.router.navigate(['/']),
-        error: (err) => this.errorMessage = err.error?.message || 'Erreur lors de la création'
+        error: (err) => {
+          this.errorMessage = err.error?.message || 'Erreur lors de la création';
+          this.cdr.detectChanges();
+        }
       });
     }
   }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -17,7 +17,7 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   onLogin(): void {
     this.authService.login(this.email, this.password).subscribe({
@@ -28,6 +28,7 @@ export class LoginComponent {
       error: (err) => {
         // Affiche le message d'erreur du serveur
         this.errorMessage = err.error.message || 'Erreur de connexion';
+        this.cdr.detectChanges();
       }
     });
   }
