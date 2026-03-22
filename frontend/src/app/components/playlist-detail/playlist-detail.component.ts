@@ -21,6 +21,9 @@ export class PlaylistDetailComponent implements OnInit {
   newSong: Song = { title: '', artist: '' };
   showDeleteConfirm: boolean = false;
 
+  likesCount: number = 0;
+  isLiked: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private playlistService: PlaylistService,
@@ -37,6 +40,9 @@ export class PlaylistDetailComponent implements OnInit {
       this.playlistService.getById(id).subscribe({
         next: (data) => {
           this.playlist = data;
+          // Initialise le compteur et l'état du like
+          this.likesCount = data.likes?.length ?? 0;
+          this.isLiked = this.checkIfLiked(data);
           this.cdr.detectChanges();
         },
         error: () => this.router.navigate(['/'])
@@ -68,6 +74,30 @@ export class PlaylistDetailComponent implements OnInit {
   toggleAddSongForm(): void {
     this.showAddSongForm = !this.showAddSongForm;
     this.newSong = { title: '', artist: '' };
+  }
+
+  // Vérifie si l'utilisateur connecté a déjà liké
+  checkIfLiked(playlist: Playlist): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !playlist.likes) return false;
+    return playlist.likes.includes(currentUser.id);
+  }
+
+  onToggleLike(): void {
+    if (!this.playlist?._id) return;
+
+    this.playlistService.toggleLike(this.playlist._id).subscribe({
+      next: (res) => {
+        this.likesCount = res.likes;
+        this.isLiked = res.liked;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.error('Erreur lors du like');
+        }
+      }
+    });
   }
 
   onAddSong(): void {

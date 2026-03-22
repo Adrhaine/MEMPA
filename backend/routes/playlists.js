@@ -163,4 +163,36 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
     }
 });
 
+// POST — liker ou unliker une playlist (protégée)
+router.post('/:id/like', authMiddleware, async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        // On vérifie si l'utilisateur a déjà liké
+        const userId = req.user.userId;
+        const alreadyLiked = playlist.likes.some(id => id.toString() === userId);
+
+        const update = alreadyLiked
+            ? { $pull:     { likes: userId } }  // déjà liké → on retire
+            : { $addToSet: { likes: userId } };  // pas encore → on ajoute
+
+        const updated = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            update,
+            { new: true }
+        );
+
+        res.json({
+            likes: updated.likes.length,         // nb total de likes
+            liked: !alreadyLiked                 // état après l'action
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

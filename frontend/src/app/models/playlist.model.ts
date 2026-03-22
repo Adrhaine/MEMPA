@@ -12,6 +12,7 @@ export interface Playlist {
   contributors: string[];
   style: string;
   createdBy?: string;
+  likes?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }

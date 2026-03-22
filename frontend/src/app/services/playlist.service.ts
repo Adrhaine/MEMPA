@@ -49,6 +49,14 @@ export class PlaylistService {
     return this.http.get<Playlist>(`${this.apiUrl}/${id}`);
   }
 
+  toggleLike(id: string): Observable<{ likes: number; liked: boolean }> {
+    return this.http.post<{ likes: number; liked: boolean }>(
+      `${this.apiUrl}/${id}/like`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
   create(playlist: Playlist): Observable<Playlist> {
     return this.http.post<Playlist>(this.apiUrl, playlist, {
       headers: this.getAuthHeaders()

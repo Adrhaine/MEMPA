@@ -102,6 +102,24 @@
 
             <!-- Boutons d'action -->
             <div class="flex flex-wrap gap-3">
+
+              <!-- Like -->
+              @if (isLoggedIn()) {
+                <button
+                  (click)="onToggleLike()"
+                  class="flex items-center gap-2 px-5 py-2.5 border font-semibold text-sm transition-all duration-200 rounded-full"
+                  [class]="isLiked
+        ? 'bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30'
+        : 'bg-[#2a1f15] border-[#3d2d1e] text-[#a89078] hover:border-red-500/30 hover:text-red-400'">
+                  {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
+                </button>
+              } @else {
+                <span class="flex items-center gap-2 px-5 py-2.5 text-sm text-[#7a6050]">
+      🤍 {{ likesCount }}
+    </span>
+              }
+
+              <!-- Ajouter un morceau -->
               @if (isLoggedIn()) {
                 <button
                   (click)="toggleAddSongForm()"
@@ -109,6 +127,8 @@
                   {{ showAddSongForm ? '✕ Annuler' : '+ Ajouter un morceau' }}
                 </button>
               }
+
+              <!-- Supprimer — créateur uniquement -->
               @if (isCreator()) {
                 <button
                   (click)="openDeleteConfirm()"
@@ -116,6 +136,7 @@
                   Supprimer la playlist
                 </button>
               }
+
             </div>
           </div>
         </div>
