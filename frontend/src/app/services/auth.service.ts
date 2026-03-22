@@ -35,9 +35,20 @@ export class AuthService {
     localStorage.removeItem('user');
   }
 
-  // Vérifie si l'utilisateur est connecté
+  // Vérifie si l'utilisateur est connecté ET que son token n'est pas expiré
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    try {
+      // Un token JWT est composé de 3 parties séparées par des points
+      // La 2ème partie contient les données (payload) encodées
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // exp est en secondes, Date.now() est en millisecondes → on multiplie par 1000
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      // Si le token est malformé, on considère l'utilisateur déconnecté
+      return false;
+    }
   }
 
   // Récupère le token pour l'envoyer dans les requêtes protégées
