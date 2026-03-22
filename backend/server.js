@@ -17,8 +17,10 @@ mongoose.connect(MONGO_URL)
 
 const playlistRoutes = require('./routes/playlists');
 const authRoutes = require('./routes/auth');
+const stylesRoutes = require('./routes/styles');
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/styles', stylesRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));

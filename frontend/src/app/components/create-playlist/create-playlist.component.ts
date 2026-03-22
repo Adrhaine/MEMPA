@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { PlaylistService } from '../../services/playlist.service';
 import { Playlist, Song } from '../../models/playlist.model';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { StyleService, Style } from '../../services/style.service';
 
 @Component({
   selector: 'app-create-playlist',
@@ -25,19 +26,32 @@ export class CreatePlaylistComponent implements OnInit {
   };
 
   newSong: Song = { title: '', artist: '' };
+  availableStyles: Style[] = [];
 
   constructor(
     private playlistService: PlaylistService,
     private router: Router,
     private authService: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private styleService: StyleService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Auto-fill créateur
     const user = this.authService.getCurrentUser();
     if (user) {
       this.playlist.creator = user.username;
     }
+
+    // Chargement des styles — indépendant de l'utilisateur
+    this.styleService.getAll().subscribe({
+      next: (styles) => {
+        this.availableStyles = styles;
+        this.cdr.detectChanges();
+      },
+      error: () => this.notificationService.error('Impossible de charger les styles')
+    });
   }
 
   addSong(): void {
