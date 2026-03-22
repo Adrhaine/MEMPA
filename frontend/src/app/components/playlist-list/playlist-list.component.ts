@@ -23,6 +23,8 @@ export class PlaylistListComponent implements OnInit {
   availableStyles: string[] = [];
   selectedStyles: string[] = [];
 
+  errorMessage : string = '';
+
   constructor(
     private playlistService: PlaylistService,
     private authService: AuthService,
@@ -32,10 +34,15 @@ export class PlaylistListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // On charge les styles disponibles au démarrage
-    this.playlistService.getStyles().subscribe((styles: string[]) => {
-      this.availableStyles = styles;
-      this.cdr.detectChanges();
+    this.playlistService.getStyles().subscribe({
+      next: (styles: string[]) => {
+        this.availableStyles = styles;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Erreur lors du chargement des styles';
+        this.cdr.detectChanges();
+      }
     });
     this.loadPlaylists();
   }
@@ -53,9 +60,16 @@ export class PlaylistListComponent implements OnInit {
   }
 
   loadPlaylists(): void {
-    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe((data: Playlist[]) => {
-      this.playlists = data;
-      this.cdr.detectChanges();
+    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe({
+      next: (data: Playlist[]) => {
+        this.playlists = data;
+        this.errorMessage = '';
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Erreur lors du chargement des playlists';
+        this.cdr.detectChanges();
+      }
     });
   }
 

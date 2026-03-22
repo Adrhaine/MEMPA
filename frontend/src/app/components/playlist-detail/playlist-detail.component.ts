@@ -110,6 +110,7 @@ export class PlaylistDetailComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erreur lors de l\'ajout';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -123,6 +124,7 @@ export class PlaylistDetailComponent implements OnInit {
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erreur lors de la suppression';
         this.showDeleteConfirm = false;
+        this.cdr.detectChanges();
       }
     });
   }
