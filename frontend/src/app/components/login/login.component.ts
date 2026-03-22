@@ -1,8 +1,9 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -12,23 +13,23 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-
   email: string = '';
   password: string = '';
-  errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {}
 
   onLogin(): void {
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        // Connexion réussie → redirige vers la page d'accueil
+        this.notificationService.success('Connexion réussie !');
         this.router.navigate(['/']);
       },
       error: (err) => {
-        // Affiche le message d'erreur du serveur
-        this.errorMessage = err.error.message || 'Erreur de connexion';
-        this.cdr.detectChanges();
+        this.notificationService.error(err.error.message || 'Erreur de connexion');
       }
     });
   }

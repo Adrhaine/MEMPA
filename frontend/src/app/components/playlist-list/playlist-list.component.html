@@ -99,11 +99,6 @@
       <span class="text-[#7a6050] text-sm">{{ playlists.length }} playlist{{ playlists.length > 1 ? 's' : '' }}</span>
     </div>
 
-    @if (errorMessage) {
-      <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 mb-6 rounded-lg">
-        {{ errorMessage }}
-      </div>
-    }
     <!-- Grille -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
       @for (playlist of playlists; track playlist._id) {
@@ -135,7 +130,7 @@
     </div>
 
     <!-- État vide -->
-    @if (playlists.length === 0 && !errorMessage) {
+    @if (playlists.length === 0) {
       <div class="text-center py-32 text-[#7a6050]">
         <p class="text-6xl mb-4">🎵</p>
         <p class="text-sm tracking-widest uppercase">Aucune playlist trouvée</p>
