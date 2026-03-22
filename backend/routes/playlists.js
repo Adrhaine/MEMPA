@@ -9,6 +9,11 @@ router.get('/', async (req, res) => {
         const { sortBy, order, search } = req.query;
         // req.query récupère les paramètres dans l'URL
 
+        // Pagination — page commence à 1, limit = nb de résultats par page
+        const page  = parseInt(req.query.page)  || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const skip  = (page - 1) * limit; // ex: page 2 → on saute les 8 premiers
+
         // Construction du filtre de recherche full-text
         let filter = {};
         const conditions = [];
@@ -35,8 +40,20 @@ router.get('/', async (req, res) => {
             sortOptions[sortBy] = order === 'desc' ? -1 : 1;
         }
 
-        const playlists = await Playlists.find(filter).sort(sortOptions);
-        res.json(playlists);
+        // On fait deux requêtes en parallèle :
+        // 1. les playlists de la page courante
+        // 2. le nombre total (pour calculer le nombre de pages)
+        const [playlists, total] = await Promise.all([
+            Playlists.find(filter).sort(sortOptions).skip(skip).limit(limit),
+            Playlists.countDocuments(filter)
+        ]);
+
+        res.json({
+            playlists,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        });
 
     } catch (err) {
         res.status(500).json({ message: err.message });

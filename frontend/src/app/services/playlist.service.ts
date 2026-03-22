@@ -3,6 +3,12 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Playlist } from '../models/playlist.model';
 import { AuthService } from './auth.service';
+export interface PaginatedPlaylists {
+  playlists: Playlist[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class PlaylistService {
@@ -16,14 +22,23 @@ export class PlaylistService {
     });
   }
 
-  getAll(search: string = '', sortBy: string = '', order: string = 'asc', selectedStyles: string[] = []): Observable<Playlist[]> {
+  getAll(
+    search: string = '',
+    sortBy: string = '',
+    order: string = 'asc',
+    selectedStyles: string[] = [],
+    page: number = 1,
+    limit: number = 8
+  ): Observable<PaginatedPlaylists> {
     let params = new HttpParams();
     if (search)                    params = params.set('search', search);
     if (sortBy)                    params = params.set('sortBy', sortBy);
     if (order)                     params = params.set('order', order);
     if (selectedStyles.length > 0) params = params.set('styles', selectedStyles.join(','));
+    params = params.set('page', page.toString());
+    params = params.set('limit', limit.toString());
 
-    return this.http.get<Playlist[]>(this.apiUrl, { params });
+    return this.http.get<PaginatedPlaylists>(this.apiUrl, { params });
   }
 
   getStyles(): Observable<string[]> {

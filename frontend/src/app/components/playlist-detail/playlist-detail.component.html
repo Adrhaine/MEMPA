@@ -59,22 +59,49 @@
           <!-- Infos + Actions -->
           <div class="flex flex-col justify-end flex-1">
             <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-family: 'Playfair Display', serif">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight" style="font-family: 'Playfair Display', serif">
               {{ playlist.name }}
             </h1>
-            <div class="flex items-center gap-2 text-sm flex-wrap mb-6">
-              <span [innerHTML]="getAuthors()"></span>
-              <span class="text-[#a89078]">•</span>
+
+            <!-- Créateur mis en avant -->
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-[#1a1410] font-bold text-xs">{{ playlist.creator.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div>
+                <p class="text-xs text-[#7a6050] uppercase tracking-wider">Créateur</p>
+                <p class="text-sm font-semibold text-[#f5e6d3]">{{ playlist.creator }}</p>
+              </div>
+            </div>
+
+            <!-- Contributeurs (affiché seulement s'il y en a) -->
+            @if (playlist.contributors && playlist.contributors.length > 0) {
+              <div class="flex items-start gap-2 mb-4">
+                <div class="flex -space-x-1 mt-1">
+                  @for (contributor of playlist.contributors.slice(0, 3); track contributor) {
+                    <div class="w-7 h-7 bg-[#3d2d1e] border-2 border-[#1a1410] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span class="text-[#a89078] font-bold text-xs">{{ contributor.charAt(0).toUpperCase() }}</span>
+                    </div>
+                  }
+                </div>
+                <div>
+                  <p class="text-xs text-[#7a6050] uppercase tracking-wider">Contributeurs</p>
+                  <p class="text-sm text-[#a89078]">{{ playlist.contributors.join(', ') }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Métadonnées -->
+            <div class="flex items-center gap-2 text-sm flex-wrap mb-6 text-[#a89078]">
               <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
-              <span class="text-[#a89078]">•</span>
-              <span class="text-[#a89078]">{{ playlist.songs.length }} morceaux</span>
-              <span class="text-[#a89078]">•</span>
-              <span class="text-[#a89078]">{{ playlist.clicks }} vues</span>
+              <span>•</span>
+              <span>{{ playlist.songs.length }} morceaux</span>
+              <span>•</span>
+              <span>{{ playlist.clicks }} vues</span>
             </div>
 
             <!-- Boutons d'action -->
             <div class="flex flex-wrap gap-3">
-              <!-- Visible pour tout utilisateur connecté -->
               @if (isLoggedIn()) {
                 <button
                   (click)="toggleAddSongForm()"
@@ -82,8 +109,6 @@
                   {{ showAddSongForm ? '✕ Annuler' : '+ Ajouter un morceau' }}
                 </button>
               }
-
-              <!-- Visible uniquement pour le créateur de la playlist -->
               @if (isCreator()) {
                 <button
                   (click)="openDeleteConfirm()"

@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
 import { NotificationService } from '../../services/notification.service';
+import { PaginatedPlaylists } from '../../services/playlist.service';
 
 @Component({
   selector: 'app-playlist-list',
@@ -22,6 +23,11 @@ export class PlaylistListComponent implements OnInit {
   order: string = 'asc';
   availableStyles: string[] = [];
   selectedStyles: string[] = [];
+
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalPlaylists: number = 0;
+  readonly limit: number = 8;
 
   constructor(
     private playlistService: PlaylistService,
@@ -46,9 +52,11 @@ export class PlaylistListComponent implements OnInit {
   }
 
   loadPlaylists(): void {
-    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe({
-      next: (data: Playlist[]) => {
-        this.playlists = data;
+    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles, this.currentPage, this.limit ).subscribe({
+      next: (data: PaginatedPlaylists) => {
+        this.playlists = data.playlists;
+        this.totalPages = data.totalPages;
+        this.totalPlaylists = data.total;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -57,6 +65,15 @@ export class PlaylistListComponent implements OnInit {
     });
   }
 
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadPlaylists();
+    // Remonte en haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+
   onStyleToggle(style: string): void {
     const index = this.selectedStyles.indexOf(style);
     if (index === -1) {
@@ -64,6 +81,7 @@ export class PlaylistListComponent implements OnInit {
     } else {
       this.selectedStyles.splice(index, 1);
     }
+    this.currentPage = 1;
     this.loadPlaylists();
   }
 
@@ -71,12 +89,13 @@ export class PlaylistListComponent implements OnInit {
     return this.selectedStyles.includes(style);
   }
 
-  onSearch(): void { this.loadPlaylists(); }
+  onSearch(): void { this.currentPage = 1; this.loadPlaylists(); }
 
   onSort(field: string): void {
     this.sortBy === field
       ? this.order = this.order === 'asc' ? 'desc' : 'asc'
       : (this.sortBy = field, this.order = 'asc');
+    this.currentPage = 1;
     this.loadPlaylists();
   }
 
@@ -86,6 +105,25 @@ export class PlaylistListComponent implements OnInit {
     this.order = 'asc';
     this.selectedStyles = [];
     this.loadPlaylists();
+    this.currentPage = 1;
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    if (this.totalPages <= 7) {
+      // Peu de pages → on affiche tout
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+    } else {
+      // Beaucoup de pages → on affiche avec des "..."
+      pages.push(1);
+      if (this.currentPage > 3) pages.push('...');
+      for (let i = Math.max(2, this.currentPage - 1); i <= Math.min(this.totalPages - 1, this.currentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (this.currentPage < this.totalPages - 2) pages.push('...');
+      pages.push(this.totalPages);
+    }
+    return pages;
   }
 
   isLoggedIn(): boolean { return this.authService.isLoggedIn(); }
