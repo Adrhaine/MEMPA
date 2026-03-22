@@ -95,18 +95,6 @@
           </div>
         </div>
 
-        <!-- Messages de feedback -->
-        @if (errorMessage) {
-          <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 mb-6 rounded-lg">
-            {{ errorMessage }}
-          </div>
-        }
-        @if (successMessage) {
-          <div class="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 mb-6 rounded-lg">
-            {{ successMessage }}
-          </div>
-        }
-
         <!-- Formulaire ajout de morceau -->
         @if (showAddSongForm) {
           <div class="bg-[#2a1f15] rounded-lg p-6 mb-8 border border-[#3d2d1e]">

@@ -6,6 +6,7 @@ import { Playlist } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-playlist-list',
@@ -19,18 +20,16 @@ export class PlaylistListComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = '';
   order: string = 'asc';
-
   availableStyles: string[] = [];
   selectedStyles: string[] = [];
-
-  errorMessage : string = '';
 
   constructor(
     private playlistService: PlaylistService,
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private styleService: StyleService
+    private styleService: StyleService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -39,23 +38,10 @@ export class PlaylistListComponent implements OnInit {
         this.availableStyles = styles;
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Erreur lors du chargement des styles';
-        this.cdr.detectChanges();
+      error: () => {
+        this.notificationService.error('Erreur lors du chargement des styles');
       }
     });
-    this.loadPlaylists();
-  }
-
-  onStyleToggle(style: string): void {
-    const index = this.selectedStyles.indexOf(style);
-    if (index === -1) {
-      // Pas encore coché → on l'ajoute
-      this.selectedStyles.push(style);
-    } else {
-      // Déjà coché → on le retire
-      this.selectedStyles.splice(index, 1);
-    }
     this.loadPlaylists();
   }
 
@@ -63,14 +49,22 @@ export class PlaylistListComponent implements OnInit {
     this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe({
       next: (data: Playlist[]) => {
         this.playlists = data;
-        this.errorMessage = '';
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Erreur lors du chargement des playlists';
-        this.cdr.detectChanges();
+      error: () => {
+        this.notificationService.error('Impossible de charger les playlists, veuillez réessayer');
       }
     });
+  }
+
+  onStyleToggle(style: string): void {
+    const index = this.selectedStyles.indexOf(style);
+    if (index === -1) {
+      this.selectedStyles.push(style);
+    } else {
+      this.selectedStyles.splice(index, 1);
+    }
+    this.loadPlaylists();
   }
 
   isStyleSelected(style: string): boolean {
@@ -94,15 +88,8 @@ export class PlaylistListComponent implements OnInit {
     this.loadPlaylists();
   }
 
-  // Vérifie si l'utilisateur est connecté
-  isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
-
-  // Récupère le nom de l'utilisateur connecté
-  getUsername(): string {
-    return this.authService.getCurrentUser()?.username || '';
-  }
+  isLoggedIn(): boolean { return this.authService.isLoggedIn(); }
+  getUsername(): string { return this.authService.getCurrentUser()?.username || ''; }
 
   onLogout(): void {
     this.authService.logout();
@@ -113,7 +100,6 @@ export class PlaylistListComponent implements OnInit {
   goToCreate(): void { this.router.navigate(['/create']); }
   goToLogin(): void { this.router.navigate(['/login']); }
 
-  // Retourne la classe CSS du gradient en fonction du style de musique
   getGradientClass(style: string): string {
     return this.styleService.getGradientClass(style);
   }
