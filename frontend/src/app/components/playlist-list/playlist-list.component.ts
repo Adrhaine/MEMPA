@@ -8,11 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
 import { NotificationService } from '../../services/notification.service';
 import { PaginatedPlaylists } from '../../services/playlist.service';
+import { ParticlesComponent } from '../particles/particles.component';
 
 @Component({
   selector: 'app-playlist-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ParticlesComponent],
   templateUrl: './playlist-list.component.html',
   styleUrl: './playlist-list.component.css'
 })
