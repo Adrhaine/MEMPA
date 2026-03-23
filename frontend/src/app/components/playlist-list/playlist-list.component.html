@@ -32,6 +32,11 @@
             + Nouvelle playlist
           </button>
           <button
+            (click)="goToStats()"
+            class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
+            Statistiques
+          </button>
+          <button
             (click)="onLogout()"
             class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
             Déconnexion
