@@ -19,18 +19,21 @@ const playlistRoutes = require('./routes/playlists');
 const authRoutes = require('./routes/auth');
 const stylesRoutes = require('./routes/styles');
 const statsRoutes = require('./routes/stats');
+const adminRoutes    = require('./routes/admin');
+const authMiddleware  = require('./middleware/auth');
+const adminMiddleware = require('./middleware/admin');
 
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/styles', stylesRoutes);
-app.use('/api/stats', statsRoutes);
+app.use('/api/stats',  authMiddleware, adminMiddleware, statsRoutes);
+app.use('/api/admin',  adminRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 
-// Le serveur ne se lance sur le port réseau que si nous ne sommes pas en train d'exécuter des tests avec Jest
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));
 }
 
-// Exportation de l'application pour Supertest
 module.exports = app;
