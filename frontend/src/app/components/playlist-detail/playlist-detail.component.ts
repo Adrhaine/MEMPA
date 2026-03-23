@@ -21,6 +21,9 @@ export class PlaylistDetailComponent implements OnInit {
   newSong: Song = { title: '', artist: '' };
   showDeleteConfirm: boolean = false;
 
+  likesCount: number = 0;
+  isLiked: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private playlistService: PlaylistService,
@@ -37,6 +40,9 @@ export class PlaylistDetailComponent implements OnInit {
       this.playlistService.getById(id).subscribe({
         next: (data) => {
           this.playlist = data;
+          // Initialise le compteur et l'état du like
+          this.likesCount = data.likes?.length ?? 0;
+          this.isLiked = this.checkIfLiked(data);
           this.cdr.detectChanges();
         },
         error: () => this.router.navigate(['/'])
@@ -54,20 +60,33 @@ export class PlaylistDetailComponent implements OnInit {
     return this.playlist.createdBy === currentUser.id;
   }
 
-  getAuthors(): string {
-    if (!this.playlist) return '';
-    const contributors = this.playlist.contributors ?? [];
-    const creator = `<span class="font-semibold text-[#f5e6d3]">${this.playlist.creator}</span>`;
-    if (contributors.length === 0) return creator;
-    const last = contributors[contributors.length - 1];
-    const others = contributors.slice(0, -1);
-    const contribStr = others.length > 0 ? `${others.join(', ')} et ${last}` : last;
-    return `${creator}<span class="text-[#f5e6d3]"> · ${contribStr}</span>`;
-  }
-
   toggleAddSongForm(): void {
     this.showAddSongForm = !this.showAddSongForm;
     this.newSong = { title: '', artist: '' };
+  }
+
+  // Vérifie si l'utilisateur connecté a déjà liké
+  checkIfLiked(playlist: Playlist): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !playlist.likes) return false;
+    return playlist.likes.includes(currentUser.id);
+  }
+
+  onToggleLike(): void {
+    if (!this.playlist?._id) return;
+
+    this.playlistService.toggleLike(this.playlist._id).subscribe({
+      next: (res) => {
+        this.likesCount = res.likes;
+        this.isLiked = res.liked;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.error('Erreur lors du like');
+        }
+      }
+    });
   }
 
   onAddSong(): void {
@@ -114,7 +133,7 @@ export class PlaylistDetailComponent implements OnInit {
 
   goBack(): void { this.router.navigate(['/']); }
 
-  getGradientClass(style: string): string {
-    return this.styleService.getGradientClass(style);
+  getGradientStyle(style: string): { [key: string]: string } {
+    return this.styleService.getGradientStyle(style);
   }
 }
