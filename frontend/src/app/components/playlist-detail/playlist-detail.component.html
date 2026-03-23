@@ -179,7 +179,7 @@
               <div class="w-16 text-right">Durée</div>
             </div>
 
-            @for (song of playlist.songs; let i = $index; track song.title) {
+            @for (song of playlist.songs; let i = $index; track i) {
               <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
                 <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
                 <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>

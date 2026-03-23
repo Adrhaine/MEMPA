@@ -1,0 +1,399 @@
+<div class="min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <button (click)="goHome()" class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors text-sm">
+          ← Retour
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center">
+            <span class="text-[#1a1410] font-bold text-xs">M</span>
+          </div>
+          <span class="font-bold text-sm" style="font-family: 'Playfair Display', serif">MEMPA</span>
+          <span class="ml-2 px-2 py-0.5 bg-[#e8c46c]/20 text-[#e8c46c] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#e8c46c]/30">
+            Admin
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[#a89078] text-sm hidden sm:block">{{ getUsername() }}</span>
+        <button (click)="onLogout()" class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenu principal -->
+  <div class="max-w-7xl mx-auto px-8 py-8">
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-1" style="font-family: 'Playfair Display', serif">Dashboard Admin</h1>
+      <p class="text-[#a89078] text-sm">Gestion globale de l'application MEMPA</p>
+    </div>
+
+    <!-- Onglets -->
+    <div class="flex gap-1 mb-8 border-b border-[#3d2d1e]">
+      <button
+        *ngFor="let tab of [
+          { id: 'stats',     label: '📊 Statistiques' },
+          { id: 'users',     label: '👥 Utilisateurs' },
+          { id: 'styles',    label: '🎵 Styles musicaux' },
+          { id: 'playlists', label: '🗑️ Playlists' }
+        ]"
+        (click)="setTab(tab.id)"
+        [class]="'px-5 py-3 text-sm font-medium transition-all rounded-t-lg -mb-px ' +
+          (activeTab === tab.id
+            ? 'text-[#e8c46c] border border-b-[#2a1f15] border-[#3d2d1e] bg-[#2a1f15]'
+            : 'text-[#a89078] hover:text-[#f5e6d3]')">
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <!-- Spinner -->
+    @if (isLoading) {
+      <div class="flex items-center justify-center py-24">
+        <div class="w-12 h-12 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }
+
+    <!-- Onglet statistiques -->
+    @if (activeTab === 'stats' && !isLoading && stats) {
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Utilisateurs</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalUsers }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Playlists</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalPlaylists }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Morceaux</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalSongs }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Total vues</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalViews }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Moy. morceaux</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.avgSongs }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Style populaire</p>
+          <p class="text-xl font-bold text-[#e8c46c] truncate">{{ stats.keyMetrics.mostPopularStyle }}</p>
+        </div>
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e] col-span-2">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Top contributeur</p>
+          @if (stats.keyMetrics.topContributor) {
+            <p class="text-xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.topContributor.name }}</p>
+            <p class="text-[#a89078] text-xs mt-1">{{ stats.keyMetrics.topContributor.count }} contribution(s)</p>
+          } @else {
+            <p class="text-[#7a6050] text-sm">Aucun contributeur pour l'instant</p>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Top 5 vues -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Top 5 playlists vues</h2>
+          @if (stats.topPlaylists.length > 0) {
+            <div class="space-y-3">
+              @for (p of stats.topPlaylists; track p._id; let i = $index) {
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="text-[#e8c46c] font-bold text-sm w-5 shrink-0">{{ i + 1 }}</span>
+                    <span class="truncate text-sm">{{ p.name }}</span>
+                  </div>
+                  <span class="text-[#a89078] text-sm shrink-0 ml-4">{{ p.clicks }} vues</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
+          }
+        </div>
+
+        <!-- Top 5 likes -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Top 5 playlists likées</h2>
+          @if (stats.topLikedPlaylists.length > 0) {
+            <div class="space-y-3">
+              @for (p of stats.topLikedPlaylists; track p._id; let i = $index) {
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="text-[#e8c46c] font-bold text-sm w-5 shrink-0">{{ i + 1 }}</span>
+                    <span class="truncate text-sm">{{ p.name }}</span>
+                  </div>
+                  <span class="text-[#a89078] text-sm shrink-0 ml-4">{{ p.likesCount }} ❤️</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
+          }
+        </div>
+
+        <!-- Répartition par style -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] lg:col-span-2">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Répartition par style</h2>
+          @if (stats.styleStats.length > 0) {
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              @for (s of stats.styleStats; track s._id) {
+                <div class="bg-[#1a1410] rounded-lg p-3 border border-[#3d2d1e]">
+                  <p class="text-sm font-medium truncate">{{ s._id }}</p>
+                  <p class="text-[#e8c46c] text-lg font-bold">{{ s.count }}</p>
+                  <p class="text-[#7a6050] text-xs">{{ s.totalViews }} vues</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Onglet utilisateurs -->
+    @if (activeTab === 'users' && !isLoading) {
+
+      <div class="flex items-center gap-4 mb-6">
+        <div class="relative flex-1 max-w-sm">
+          <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher par nom ou email…"
+                 class="w-full bg-[#2a1f15] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+        </div>
+        <span class="text-[#a89078] text-sm shrink-0">{{ filteredUsers.length }} utilisateur(s)</span>
+      </div>
+
+      @if (filteredUsers.length > 0) {
+        <div class="bg-[#2a1f15] rounded-lg border border-[#3d2d1e] overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
+              <th class="text-left px-6 py-4">Utilisateur</th>
+              <th class="text-left px-6 py-4 hidden md:table-cell">Email</th>
+              <th class="text-left px-6 py-4">Rôle</th>
+              <th class="text-left px-6 py-4 hidden lg:table-cell">Inscription</th>
+              <th class="text-right px-6 py-4">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (user of filteredUsers; track user._id) {
+                <tr class="border-b border-[#3d2d1e]/50 hover:bg-[#1a1410]/50 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                           [style.background]="user.role === 'admin' ? '#e8c46c22' : '#3d2d1e'"
+                           [style.color]="user.role === 'admin' ? '#e8c46c' : '#a89078'">
+                        {{ user.username.charAt(0).toUpperCase() }}
+                      </div>
+                      <span class="font-medium">{{ user.username }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-[#a89078] hidden md:table-cell">{{ user.email }}</td>
+                  <td class="px-6 py-4">
+                    <span [class]="'px-2.5 py-1 rounded-full text-xs font-semibold ' +
+                      (user.role === 'admin'
+                        ? 'bg-[#e8c46c]/20 text-[#e8c46c] border border-[#e8c46c]/30'
+                        : 'bg-[#3d2d1e] text-[#a89078]')">
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-[#a89078] hidden lg:table-cell">{{ formatDate(user.createdAt) }}</td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center justify-end gap-2">
+                      @if (user._id !== getCurrentUserId()) {
+                        <button (click)="toggleUserRole(user)"
+                                [title]="user.role === 'admin' ? 'Rétrograder en user' : 'Promouvoir admin'"
+                                class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-[#e8c46c] hover:text-[#e8c46c] transition-all">
+                          {{ user.role === 'admin' ? '↓ User' : '↑ Admin' }}
+                        </button>
+                        <button (click)="confirmDeleteUser(user)"
+                                class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-red-500 hover:text-red-400 transition-all">
+                          Supprimer
+                        </button>
+                      } @else {
+                        <span class="text-[#7a6050] text-xs italic">Vous</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="text-center py-16 text-[#7a6050]">
+          <p class="text-4xl mb-4">👥</p>
+          <p>Aucun utilisateur trouvé</p>
+        </div>
+      }
+    }
+
+    <!-- Onglet styles musicaux -->
+    @if (activeTab === 'styles' && !isLoading) {
+
+      <div class="flex items-center justify-between mb-6">
+        <span class="text-[#a89078] text-sm">{{ styles.length }} style(s)</span>
+        <button (click)="showAddStyleForm = !showAddStyleForm"
+                class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs rounded-full hover:bg-[#f0d080] transition-all">
+          {{ showAddStyleForm ? '✕ Annuler' : '+ Ajouter un style' }}
+        </button>
+      </div>
+
+      @if (showAddStyleForm) {
+        <div class="bg-[#2a1f15] rounded-lg border border-[#e8c46c]/30 p-6 mb-6">
+          <h3 class="text-base font-bold mb-4" style="font-family: 'Playfair Display', serif">Nouveau style musical</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Nom du style *</label>
+              <input type="text" [(ngModel)]="newStyleName" placeholder="ex: Jazz, Rock, Électro…"
+                     class="w-full bg-[#1a1410] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+            </div>
+            <div>
+              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Couleur principale</label>
+              <div class="flex items-center gap-3">
+                <input type="color" [(ngModel)]="newStyleColor1" class="w-10 h-10 rounded cursor-pointer border-0 bg-transparent" />
+                <span class="text-[#a89078] text-xs font-mono">{{ newStyleColor1 }}</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Couleur secondaire</label>
+              <div class="flex items-center gap-3">
+                <input type="color" [(ngModel)]="newStyleColor2" class="w-10 h-10 rounded cursor-pointer border-0 bg-transparent" />
+                <span class="text-[#a89078] text-xs font-mono">{{ newStyleColor2 }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center gap-4">
+            <div class="w-24 h-8 rounded-lg" [style.background]="'linear-gradient(135deg, ' + newStyleColor1 + ', ' + newStyleColor2 + ')'"></div>
+            <span class="text-[#a89078] text-xs">Aperçu du gradient</span>
+          </div>
+          <button (click)="submitAddStyle()"
+                  class="mt-4 px-6 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm rounded-lg hover:bg-[#f0d080] transition-all">
+            Créer le style
+          </button>
+        </div>
+      }
+
+      @if (styles.length > 0) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          @for (style of styles; track style._id) {
+            <div class="relative rounded-lg overflow-hidden border border-[#3d2d1e] hover:border-[#e8c46c]/50 transition-all">
+              <div class="h-20" [style.background]="getGradient(style)"></div>
+              <div class="bg-[#2a1f15] px-4 py-3 flex items-center justify-between">
+                <span class="font-medium text-sm truncate">{{ style.name }}</span>
+                <button (click)="confirmDeleteStyle(style)"
+                        class="text-[#7a6050] hover:text-red-400 transition-colors text-xs ml-2 shrink-0">✕</button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-16 text-[#7a6050]">
+          <p class="text-4xl mb-4">🎵</p>
+          <p>Aucun style musical pour l'instant</p>
+        </div>
+      }
+    }
+
+    <!-- Onglet playlists -->
+    @if (activeTab === 'playlists' && !isLoading) {
+
+      <div class="flex items-center gap-4 mb-6">
+        <div class="relative flex-1 max-w-sm">
+          <input type="text" [(ngModel)]="playlistSearch" (input)="onPlaylistSearch()"
+                 placeholder="Rechercher par nom ou créateur…"
+                 class="w-full bg-[#2a1f15] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+        </div>
+        <span class="text-[#a89078] text-sm shrink-0">{{ totalPlaylists }} playlist(s)</span>
+      </div>
+
+      @if (playlists.length > 0) {
+        <div class="bg-[#2a1f15] rounded-lg border border-[#3d2d1e] overflow-hidden mb-6">
+          <table class="w-full text-sm">
+            <thead>
+            <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
+              <th class="text-left px-6 py-4">Nom</th>
+              <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
+              <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
+              <th class="text-right px-6 py-4 hidden sm:table-cell">Vues</th>
+              <th class="text-right px-6 py-4 hidden sm:table-cell">Morceaux</th>
+              <th class="text-right px-6 py-4">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (playlist of playlists; track playlist._id) {
+                <tr class="border-b border-[#3d2d1e]/50 hover:bg-[#1a1410]/50 transition-colors">
+                  <td class="px-6 py-4 font-medium max-w-[200px] truncate">{{ playlist.name }}</td>
+                  <td class="px-6 py-4 text-[#a89078] hidden md:table-cell">{{ playlist.creator }}</td>
+                  <td class="px-6 py-4 hidden lg:table-cell">
+                    <span class="px-2.5 py-1 bg-[#3d2d1e] rounded-full text-xs">{{ playlist.style }}</span>
+                  </td>
+                  <td class="px-6 py-4 text-right text-[#a89078] hidden sm:table-cell">{{ playlist.clicks }}</td>
+                  <td class="px-6 py-4 text-right text-[#a89078] hidden sm:table-cell">{{ playlist.songs.length }}</td>
+                  <td class="px-6 py-4 text-right">
+                    <button (click)="confirmDeletePlaylist(playlist)"
+                            class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-red-500 hover:text-red-400 transition-all">
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalPages > 1) {
+          <div class="flex items-center justify-center gap-2">
+            <button (click)="loadPlaylists(currentPage - 1)" [disabled]="currentPage === 1"
+                    class="px-4 py-2 text-sm rounded-lg border border-[#3d2d1e] text-[#a89078] hover:text-[#f5e6d3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              ← Précédent
+            </button>
+            <span class="text-[#a89078] text-sm px-4">Page {{ currentPage }} / {{ totalPages }}</span>
+            <button (click)="loadPlaylists(currentPage + 1)" [disabled]="currentPage === totalPages"
+                    class="px-4 py-2 text-sm rounded-lg border border-[#3d2d1e] text-[#a89078] hover:text-[#f5e6d3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              Suivant →
+            </button>
+          </div>
+        }
+      } @else {
+        <div class="text-center py-16 text-[#7a6050]">
+          <p class="text-4xl mb-4">🎶</p>
+          <p>Aucune playlist trouvée</p>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Modal de confirmation -->
+  @if (showConfirmModal) {
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+         (click)="closeModal()">
+      <div class="bg-[#2a1f15] border border-[#3d2d1e] rounded-xl p-8 max-w-md w-full shadow-2xl"
+           (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-bold mb-3" style="font-family: 'Playfair Display', serif">Confirmation requise</h3>
+        <p class="text-[#a89078] text-sm mb-6 leading-relaxed">{{ confirmMessage }}</p>
+        <div class="flex gap-3 justify-end">
+          <button (click)="closeModal()"
+                  class="px-5 py-2 border border-[#3d2d1e] text-[#a89078] text-sm rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
+            Annuler
+          </button>
+          <button (click)="confirmAction()"
+                  class="px-5 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-500 transition-all font-medium">
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
