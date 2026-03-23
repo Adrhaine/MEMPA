@@ -34,6 +34,7 @@ export interface AdminStats {
   topPlaylists: { _id: string; name: string; clicks: number; style: string }[];
   topLikedPlaylists: { _id: string; name: string; style: string; likesCount: number }[];
   creationsOverTime: { _id: string; count: number }[];
+  topArtists: { _id: string; count: number }[];
 }
 
 export interface AdminPaginatedPlaylists {

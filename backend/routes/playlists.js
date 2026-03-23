@@ -3,6 +3,18 @@ const router   = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Playlists = require('../models/Playlist');
 
+function getRandomDuration() {
+    const minSeconds = 90;
+    const maxSeconds = 180;
+    const totalSeconds = Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    // padStart permet d'afficher "2:05" au lieu de "2:5"
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 // GET — toutes les playlists avec tri et/ou filtre
 router.get('/', async (req, res) => {
     try {
@@ -112,8 +124,20 @@ router.get('/:id', async (req, res) => {
 // POST — créer une playlist (protégée, faut être connecté)
 router.post('/', authMiddleware, async (req, res) => {
     try {
+        const playlistData = { ...req.body };
+
+        if (!playlistData.songs || !Array.isArray(playlistData.songs) || playlistData.songs.length === 0) {
+            return res.status(400).json({
+                message: 'Une playlist doit obligatoirement contenir au moins une musique.'
+            });
+        }
+        playlistData.songs = playlistData.songs.map(song => ({
+            ...song,
+            duration: getRandomDuration()
+        }));
+
         const playlist = new Playlists({
-            ...req.body,
+            ...playlistData,
             createdBy: req.user.userId // on associe le créateur automatiquement
         });
         const saved = await playlist.save();
@@ -122,29 +146,6 @@ router.post('/', authMiddleware, async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
-
-// DELETE — supprimer une playlist (protégée, créateur uniquement)
-router.delete('/:id', authMiddleware, async (req, res) => {
-    try {
-        const playlist = await Playlists.findById(req.params.id);
-        if (!playlist) {
-            return res.status(404).json({ message: 'Playlist non trouvée' });
-        }
-
-        // On vérifie que l'utilisateur connecté est bien le créateur
-        if (playlist.createdBy.toString() !== req.user.userId) {
-            return res.status(403).json({ message: 'Vous n\'êtes pas autorisé à supprimer cette playlist' });
-        }
-
-        await Playlists.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Playlist supprimée avec succès' });
-
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
 
 // PATCH — ajouter un ou plusieurs morceaux (protégée, tout utilisateur connecté)
 router.patch('/:id/songs', authMiddleware, async (req, res) => {
@@ -161,9 +162,15 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
 
-        // Construction de l'update
+        // On boucle sur tous les morceaux reçus pour leur ajouter une durée aléatoire
+        const songsWithDuration = songs.map(song => ({
+            ...song,
+            duration: getRandomDuration()
+        }));
+
+        // Construction de l'update avec les morceaux modifiés
         const update = {
-            $push: { songs: { $each: songs } }
+            $push: { songs: { $each: songsWithDuration } }
         };
 
         // On ajoute aux contributeurs seulement si ce n'est pas le créateur
@@ -204,13 +211,36 @@ router.post('/:id/like', authMiddleware, async (req, res) => {
         const updated = await Playlists.findByIdAndUpdate(
             req.params.id,
             update,
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         res.json({
             likes: updated.likes.length,         // nb total de likes
             liked: !alreadyLiked                 // état après l'action
         });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+// DELETE — supprimer une playlist (protégée, créateur uniquement)
+router.delete('/:id', authMiddleware, async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        // On vérifie que l'utilisateur connecté est bien le créateur
+        if (playlist.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Vous n\'êtes pas autorisé à supprimer cette playlist' });
+        }
+
+        await Playlists.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Playlist supprimée avec succès' });
+
 
     } catch (err) {
         res.status(500).json({ message: err.message });

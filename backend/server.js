@@ -18,15 +18,11 @@ mongoose.connect(MONGO_URL)
 const playlistRoutes = require('./routes/playlists');
 const authRoutes = require('./routes/auth');
 const stylesRoutes = require('./routes/styles');
-const statsRoutes = require('./routes/stats');
 const adminRoutes    = require('./routes/admin');
-const authMiddleware  = require('./middleware/auth');
-const adminMiddleware = require('./middleware/admin');
 
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/styles', stylesRoutes);
-app.use('/api/stats',  authMiddleware, adminMiddleware, statsRoutes);
 app.use('/api/admin',  adminRoutes);
 
 

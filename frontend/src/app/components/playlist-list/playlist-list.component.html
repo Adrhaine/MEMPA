@@ -33,11 +33,6 @@
           </button>
           @if (isAdmin()) {
             <button
-              (click)="goToStats()"
-              class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
-              Statistiques
-            </button>
-            <button
               (click)="router.navigate(['/admin'])"
               class="px-4 py-2 bg-[#e8c46c]/10 text-[#e8c46c] text-xs font-semibold hover:bg-[#e8c46c]/20 transition-all rounded-full border border-[#e8c46c]/30">
               ⚙ Admin

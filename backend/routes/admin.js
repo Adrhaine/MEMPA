@@ -36,7 +36,16 @@ router.delete('/users/:id', async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        res.json({ message: `Utilisateur "${user.username}" supprimé avec succès` });
+        // 1. Supprimer toutes les playlists créées par cet utilisateur
+        await Playlist.deleteMany({ createdBy: req.params.id });
+
+        // 2. Retirer les likes de cet utilisateur sur toutes les playlists
+        await Playlist.updateMany(
+            { likes: req.params.id },
+            { $pull: { likes: req.params.id } }
+        );
+
+        res.json({ message: `Utilisateur "${user.username}" et toutes ses données ont été supprimés avec succès` });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -162,7 +171,7 @@ router.get('/stats', async (req, res) => {
         const totalPlaylists = await Playlist.countDocuments();
 
         const songsResult = await Playlist.aggregate([
-            { $group: { _id: null, total: { $sum: { $size: '$songs' } } } }
+            { $group: { _id: null, total: { $sum: { $size: { $ifNull: ['$songs', []] } } } } }
         ]);
         const totalSongs = songsResult[0]?.total || 0;
 
@@ -207,8 +216,15 @@ router.get('/stats', async (req, res) => {
 
         // Top 5 playlists les plus likées
         const topLikedPlaylists = await Playlist.aggregate([
-            { $project: { name: 1, style: 1, likesCount: { $size: '$likes' } } },
+            { $project: { name: 1, style: 1, likesCount: { $size: { $ifNull: ['$likes', []] } } } },
             { $sort: { likesCount: -1 } },
+            { $limit: 5 }
+        ]);
+
+        const topArtists = await Playlist.aggregate([
+            { $unwind: { path: '$songs', preserveNullAndEmptyArrays: false } },
+            { $group: { _id: '$songs.artist', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
             { $limit: 5 }
         ]);
 
@@ -220,12 +236,13 @@ router.get('/stats', async (req, res) => {
                 totalViews,
                 avgSongs,
                 mostPopularStyle,
-                topContributor
+                topContributor,
             },
             styleStats,
             topPlaylists,
             topLikedPlaylists,
-            creationsOverTime
+            creationsOverTime,
+            topArtists
         });
 
     } catch (err) {

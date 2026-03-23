@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,6 +7,11 @@ import { StyleService } from '../../services/style.service';
 import { Style } from '../../services/style.service';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
+import { ViewChild, ElementRef } from '@angular/core';
+import { Chart, registerables } from 'chart.js';
+
+
+Chart.register(...registerables);
 
 type AdminTab = 'stats' | 'users' | 'styles' | 'playlists';
 
@@ -17,10 +22,18 @@ type AdminTab = 'stats' | 'users' | 'styles' | 'playlists';
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, OnDestroy {
 
-  activeTab: string = 'stats';
+  activeTab: AdminTab = 'stats';
   isLoading: boolean = false;
+
+  // Tableau des onglets — déclaré ici pour que le HTML soit typé correctement
+  tabs: { id: AdminTab; label: string }[] = [
+    { id: 'stats',     label: '📊 Statistiques' },
+    { id: 'users',     label: '👥 Utilisateurs' },
+    { id: 'styles',    label: '🎵 Styles musicaux' },
+    { id: 'playlists', label: '🗑️ Playlists' }
+  ];
 
   // Modale de confirmation
   showConfirmModal: boolean = false;
@@ -44,6 +57,14 @@ export class AdminComponent implements OnInit {
   newStyleColor2: string = '#1a1410';
   showAddStyleForm: boolean = false;
 
+  @ViewChild('styleChart') styleChartRef?: ElementRef;
+  @ViewChild('timelineChart') timelineChartRef?: ElementRef;
+  @ViewChild('topPlaylistsChart') topPlaylistsChartRef?: ElementRef;
+  @ViewChild('topLikedChart') topLikedChartRef?: ElementRef;
+  @ViewChild('artistsChart') artistsChartRef?: ElementRef;
+
+  private charts: Chart[] = [];
+
   constructor(
     private adminService: AdminService,
     private styleService: StyleService,
@@ -57,13 +78,29 @@ export class AdminComponent implements OnInit {
     this.loadStats();
   }
 
-  setTab(tab: string): void {
+  ngOnDestroy(): void {
+    this.charts.forEach(c => c.destroy());
+    this.charts = [];
+  }
+
+  setTab(tab: AdminTab): void {
     this.activeTab = tab;
-    // Lazy loading : on ne charge les données qu'au premier accès à l'onglet
+
+    // On détruit les anciens graphiques si on change d'onglet
+    this.charts.forEach(c => c.destroy());
+    this.charts = [];
+
     switch (tab) {
-      case 'stats': if (!this.stats) this.loadStats(); break;
-      case 'users': if (this.users.length === 0) this.loadUsers(); break;
-      case 'styles': if (this.styles.length === 0) this.loadStyles(); break;
+      case 'stats':
+        if (!this.stats) {
+          this.loadStats();
+        } else {
+          // setTimeout(..., 0) laisse le temps à Angular d'afficher le HTML des <canvas>
+          setTimeout(() => this.createCharts(), 0);
+        }
+        break;
+      case 'users':     if (this.users.length === 0) this.loadUsers(); break;
+      case 'styles':    if (this.styles.length === 0) this.loadStyles(); break;
       case 'playlists': if (this.playlists.length === 0) this.loadPlaylists(); break;
     }
   }
@@ -71,8 +108,20 @@ export class AdminComponent implements OnInit {
   loadStats(): void {
     this.isLoading = true;
     this.adminService.getStats().subscribe({
-      next: (data) => { this.stats = data; this.isLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.isLoading = false; this.notificationService.error('Impossible de charger les statistiques'); this.cdr.detectChanges(); }
+      next: (data) => {
+        this.stats = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+
+        if (this.activeTab === 'stats') {
+          setTimeout(() => this.createCharts(), 0);
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+        this.notificationService.error('Impossible de charger les statistiques');
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -106,7 +155,6 @@ export class AdminComponent implements OnInit {
       error: () => { this.isLoading = false; this.notificationService.error('Impossible de charger les playlists'); this.cdr.detectChanges(); }
     });
   }
-
 
   get filteredUsers(): AdminUser[] {
     if (!this.userSearch.trim()) return this.users;
@@ -157,6 +205,125 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => this.notificationService.error(err.error?.message || 'Erreur lors de la mise à jour')
     });
+  }
+
+  private createCharts(): void {
+    if (!this.stats) return;
+
+    // Options communes pour réduire la taille et cacher les légendes inutiles
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false, // <-- Permet de limiter la hauteur en HTML
+      plugins: { legend: { display: false } } // Cache le gros carré de légende en haut
+    };
+
+    // 1. Camembert des styles
+    if (this.styleChartRef) {
+      this.charts.push(new Chart(this.styleChartRef.nativeElement.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: this.stats.styleStats.map(s => s._id),
+          datasets: [{
+            data: this.stats.styleStats.map(s => s.count),
+            backgroundColor: ['#e8c46c', '#a78bfa', '#f87171', '#34d399', '#60a5fa'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: { legend: { display: true, position: 'right', labels: { color: '#f5e6d3', font: { size: 11 } } } },
+          cutout: '70%' // Affine l'anneau du camembert pour faire plus élégant
+        }
+      }));
+    }
+
+    // 2. Évolution temporelle
+    if (this.timelineChartRef) {
+      this.charts.push(new Chart(this.timelineChartRef.nativeElement.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: this.stats.creationsOverTime.map(c => c._id),
+          datasets: [{
+            label: 'Créations',
+            data: this.stats.creationsOverTime.map(c => c.count),
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+            fill: true, tension: 0.4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            x: { ticks: { color: '#a89078', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#a89078', stepSize: 1 }, grid: { color: '#3d2d1e' }, beginAtZero: true }
+          }
+        }
+      }));
+    }
+
+    // 3. Top 5 Vues
+    if (this.topPlaylistsChartRef) {
+      this.charts.push(new Chart(this.topPlaylistsChartRef.nativeElement.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: this.stats.topPlaylists.map(p => p.name),
+          datasets: [{ label: 'Vues', data: this.stats.topPlaylists.map(p => p.clicks), backgroundColor: '#e8c46c', borderRadius: 4 }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          scales: {
+            x: { ticks: { color: '#a89078' }, grid: { color: '#3d2d1e' } },
+            y: { ticks: { color: '#f5e6d3', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      }));
+    }
+
+    // 4. Top 5 Likes
+    if (this.topLikedChartRef) {
+      this.charts.push(new Chart(this.topLikedChartRef.nativeElement.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: this.stats.topLikedPlaylists.map(p => p.name),
+          datasets: [{ label: 'Likes', data: this.stats.topLikedPlaylists.map(p => p.likesCount), backgroundColor: '#f87171', borderRadius: 4 }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              ticks: { color: '#a89078', stepSize: 1, precision: 0 },
+              grid: { color: '#3d2d1e' }
+            },
+            y: { ticks: { color: '#f5e6d3', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      }));
+    }
+    // 5. Top 5 Artistes
+    if (this.artistsChartRef) {
+      this.charts.push(new Chart(this.artistsChartRef.nativeElement.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: this.stats.topArtists.map(a => a._id),
+          datasets: [{
+            label: 'Morceaux ajoutés',
+            data: this.stats.topArtists.map(a => a.count),
+            backgroundColor: '#a78bfa', // Un violet sympa
+            borderRadius: 4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          scales: {
+            x: { ticks: { color: '#a89078', stepSize: 1, precision: 0 }, grid: { color: '#3d2d1e' } },
+            y: { ticks: { color: '#f5e6d3', font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      }));
+    }
   }
 
   confirmDeletePlaylist(playlist: AdminPlaylist): void {

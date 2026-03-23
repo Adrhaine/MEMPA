@@ -38,12 +38,7 @@
     <!-- Onglets -->
     <div class="flex gap-1 mb-8 border-b border-[#3d2d1e]">
       <button
-        *ngFor="let tab of [
-          { id: 'stats',     label: '📊 Statistiques' },
-          { id: 'users',     label: '👥 Utilisateurs' },
-          { id: 'styles',    label: '🎵 Styles musicaux' },
-          { id: 'playlists', label: '🗑️ Playlists' }
-        ]"
+        *ngFor="let tab of tabs"
         (click)="setTab(tab.id)"
         [class]="'px-5 py-3 text-sm font-medium transition-all rounded-t-lg -mb-px ' +
           (activeTab === tab.id
@@ -80,84 +75,45 @@
           <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Total vues</p>
           <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalViews }}</p>
         </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Moy. morceaux</p>
-          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.avgSongs }}</p>
-        </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Style populaire</p>
-          <p class="text-xl font-bold text-[#e8c46c] truncate">{{ stats.keyMetrics.mostPopularStyle }}</p>
-        </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e] col-span-2">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Top contributeur</p>
-          @if (stats.keyMetrics.topContributor) {
-            <p class="text-xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.topContributor.name }}</p>
-            <p class="text-[#a89078] text-xs mt-1">{{ stats.keyMetrics.topContributor.count }} contribution(s)</p>
-          } @else {
-            <p class="text-[#7a6050] text-sm">Aucun contributeur pour l'instant</p>
-          }
-        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Top 5 vues -->
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
-          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Top 5 playlists vues</h2>
-          @if (stats.topPlaylists.length > 0) {
-            <div class="space-y-3">
-              @for (p of stats.topPlaylists; track p._id; let i = $index) {
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <span class="text-[#e8c46c] font-bold text-sm w-5 shrink-0">{{ i + 1 }}</span>
-                    <span class="truncate text-sm">{{ p.name }}</span>
-                  </div>
-                  <span class="text-[#a89078] text-sm shrink-0 ml-4">{{ p.clicks }} vues</span>
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
-          }
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col lg:col-span-2">
+          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Créations (30 jours)</h2>
+          <div class="relative h-64 w-full">
+            <canvas #timelineChart></canvas>
+          </div>
         </div>
 
-        <!-- Top 5 likes -->
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
-          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Top 5 playlists likées</h2>
-          @if (stats.topLikedPlaylists.length > 0) {
-            <div class="space-y-3">
-              @for (p of stats.topLikedPlaylists; track p._id; let i = $index) {
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <span class="text-[#e8c46c] font-bold text-sm w-5 shrink-0">{{ i + 1 }}</span>
-                    <span class="truncate text-sm">{{ p.name }}</span>
-                  </div>
-                  <span class="text-[#a89078] text-sm shrink-0 ml-4">{{ p.likesCount }} ❤️</span>
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
-          }
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Répartition des styles</h2>
+          <div class="relative h-64 w-full">
+            <canvas #styleChart></canvas>
+          </div>
         </div>
 
-        <!-- Répartition par style -->
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] lg:col-span-2">
-          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">Répartition par style</h2>
-          @if (stats.styleStats.length > 0) {
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              @for (s of stats.styleStats; track s._id) {
-                <div class="bg-[#1a1410] rounded-lg p-3 border border-[#3d2d1e]">
-                  <p class="text-sm font-medium truncate">{{ s._id }}</p>
-                  <p class="text-[#e8c46c] text-lg font-bold">{{ s.count }}</p>
-                  <p class="text-[#7a6050] text-xs">{{ s.totalViews }} vues</p>
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="text-[#7a6050] text-sm">Aucune donnée</p>
-          }
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Artistes</h2>
+          <div class="relative h-64 w-full">
+            <canvas #artistsChart></canvas>
+          </div>
         </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Playlists (Vues)</h2>
+          <div class="relative h-64 w-full">
+            <canvas #topPlaylistsChart></canvas>
+          </div>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Playlists (Likes)</h2>
+          <div class="relative h-64 w-full">
+            <canvas #topLikedChart></canvas>
+          </div>
+        </div>
+
       </div>
     }
 
@@ -166,7 +122,7 @@
 
       <div class="flex items-center gap-4 mb-6">
         <div class="relative flex-1 max-w-sm">
-          <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher par nom ou email…"
+          <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher par no ou email…"
                  class="w-full bg-[#2a1f15] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
         </div>
         <span class="text-[#a89078] text-sm shrink-0">{{ filteredUsers.length }} utilisateur(s)</span>
