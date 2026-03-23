@@ -1,0 +1,22 @@
+@if (payload) {
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+       (click)="onClose()">
+    <div class="bg-[#2a1f15] border border-[#3d2d1e] rounded-xl p-8 max-w-md w-full shadow-2xl"
+         (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-bold mb-3" style="font-family: 'Playfair Display', serif">
+        Confirmation requise
+      </h3>
+      <p class="text-[#a89078] text-sm mb-6 leading-relaxed">{{ payload.message }}</p>
+      <div class="flex gap-3 justify-end">
+        <button (click)="onClose()"
+                class="px-5 py-2 border border-[#3d2d1e] text-[#a89078] text-sm rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
+          Annuler
+        </button>
+        <button (click)="onConfirm()"
+                class="px-5 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-500 transition-all font-medium">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -149,6 +149,44 @@ router.post('/styles', async (req, res) => {
     }
 });
 
+// PATCH /api/admin/styles/:id — modifier un style musical (nom + couleurs)
+router.patch('/styles/:id', async (req, res) => {
+    try {
+        const { name, color1, color2 } = req.body;
+
+        if (!name || name.trim() === '') {
+            return res.status(400).json({ message: 'Le nom du style est obligatoire' });
+        }
+
+        // Vérifie que le nouveau nom n'est pas déjà pris par un autre style
+        const existing = await Style.findOne({
+            name: { $regex: `^${name.trim()}$`, $options: 'i' },
+            _id: { $ne: req.params.id } // $ne = "not equal" -> on exclut le style lui-même
+        });
+        if (existing) {
+            return res.status(400).json({ message: `Le style "${name.trim()}" existe déjà` });
+        }
+
+        const updated = await Style.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: name.trim(),
+                ...(color1 && { color1 }), // on met à jour les couleurs seulement si fournies
+                ...(color2 && { color2 })
+            },
+            { returnDocument: 'after' }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: 'Style non trouvé' });
+        }
+
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // DELETE /api/admin/styles/:id — supprimer un style musical
 router.delete('/styles/:id', async (req, res) => {
     try {

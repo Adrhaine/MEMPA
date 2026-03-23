@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface Notification {
   message: string;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +26,11 @@ export class NotificationService {
 
   error(message: string): void {
     this.queue.push({ message, type: 'error' });
+    this.processQueue();
+  }
+
+  warning(message: string): void {
+    this.queue.push({ message, type: 'warning' });
     this.processQueue();
   }
 

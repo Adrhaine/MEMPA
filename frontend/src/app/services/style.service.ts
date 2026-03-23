@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Style } from '../models/playlist.model';
 
-export interface Style {
-  _id: string;
-  name: string;
-  color1: string;
-  color2: string;
-}
+export type { Style };
 
 @Injectable({ providedIn: 'root' })
 export class StyleService {
@@ -32,16 +28,9 @@ export class StyleService {
     const found = this.stylesCache.find(
       s => s.name.toLowerCase() === styleName.toLowerCase()
     );
-
     if (found) {
-      return {
-        background: `linear-gradient(135deg, ${found.color1}, ${found.color2})`
-      };
+      return { background: `linear-gradient(135deg, ${found.color1}, ${found.color2})` };
     }
-
-    // Fallback si le style n'est pas trouvé dans le cache
-    return {
-      background: 'linear-gradient(135deg, #3d2d1e, #1a1410)'
-    };
+    return { background: 'linear-gradient(135deg, #3d2d1e, #1a1410)' };
   }
 }

@@ -242,20 +242,65 @@
       @if (styles.length > 0) {
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           @for (style of styles; track style._id) {
-            <div class="relative rounded-lg overflow-hidden border border-[#3d2d1e] hover:border-[#e8c46c]/50 transition-all">
-              <div class="h-20" [style.background]="getGradient(style)"></div>
-              <div class="bg-[#2a1f15] px-4 py-3 flex items-center justify-between">
-                <span class="font-medium text-sm truncate">{{ style.name }}</span>
-                <button (click)="confirmDeleteStyle(style)"
-                        class="text-[#7a6050] hover:text-red-400 transition-colors text-xs ml-2 shrink-0">✕</button>
+
+            <!-- MODE ÉDITION : formulaire inline -->
+            @if (editingStyleId === style._id) {
+              <div class="rounded-lg border border-[#e8c46c]/50 bg-[#2a1f15] p-4 col-span-2 sm:col-span-1">
+                <!-- Aperçu en temps réel -->
+                <div class="h-12 rounded-lg mb-3 transition-all"
+                     [style.background]="'linear-gradient(135deg, ' + editStyleColor1 + ', ' + editStyleColor2 + ')'">
+                </div>
+
+                <input type="text" [(ngModel)]="editStyleName"
+                       class="w-full bg-[#1a1410] border border-[#3d2d1e] rounded-lg px-3 py-1.5 text-sm text-[#f5e6d3] focus:outline-none focus:border-[#e8c46c] mb-3 transition-colors"
+                       placeholder="Nom du style" />
+
+                <div class="flex items-center gap-2 mb-3">
+                  <input type="color" [(ngModel)]="editStyleColor1"
+                         class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+                  <input type="color" [(ngModel)]="editStyleColor2"
+                         class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+                  <span class="text-[#7a6050] text-xs font-mono flex-1 truncate">
+              {{ editStyleColor1 }} / {{ editStyleColor2 }}
+            </span>
+                </div>
+
+                <div class="flex gap-2">
+                  <button (click)="submitEditStyle()"
+                          class="flex-1 px-3 py-1.5 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs rounded-lg hover:bg-[#f0d080] transition-all">
+                    Sauvegarder
+                  </button>
+                  <button (click)="cancelEditStyle()"
+                          class="px-3 py-1.5 border border-[#3d2d1e] text-[#a89078] text-xs rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
+                    ✕
+                  </button>
+                </div>
               </div>
-            </div>
+
+              <!-- MODE AFFICHAGE NORMAL -->
+            } @else {
+              <div class="relative rounded-lg overflow-hidden border border-[#3d2d1e] hover:border-[#e8c46c]/50 transition-all">
+                <div class="h-20" [style.background]="getGradient(style)"></div>
+                <div class="bg-[#2a1f15] px-4 py-3 flex items-center justify-between">
+                  <span class="font-medium text-sm truncate">{{ style.name }}</span>
+                  <div class="flex items-center gap-2 ml-2 shrink-0">
+                    <!-- Bouton édition (crayon) -->
+                    <button (click)="startEditStyle(style)"
+                            title="Modifier ce style"
+                            class="text-[#7a6050] hover:text-[#e8c46c] transition-colors text-xs">
+                      ✎
+                    </button>
+                    <!-- Bouton suppression -->
+                    <button (click)="confirmDeleteStyle(style)"
+                            class="text-[#7a6050] hover:text-red-400 transition-colors text-xs">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
           }
-        </div>
-      } @else {
-        <div class="text-center py-16 text-[#7a6050]">
-          <p class="text-4xl mb-4">🎵</p>
-          <p>Aucun style musical pour l'instant</p>
         </div>
       }
     }
@@ -276,17 +321,38 @@
         <div class="bg-[#2a1f15] rounded-lg border border-[#3d2d1e] overflow-hidden mb-6">
           <table class="w-full text-sm">
             <thead>
-            <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
-              <th class="text-left px-6 py-4">Nom</th>
-              <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
-              <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
-              <th class="text-right px-6 py-4 hidden sm:table-cell">Vues</th>
-              <th class="text-right px-6 py-4 hidden sm:table-cell">Morceaux</th>
-              <th class="text-right px-6 py-4">Action</th>
-            </tr>
+              <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
+                <th class="text-left px-6 py-4">Nom</th>
+                <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
+                <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
+
+                <!-- Colonne Vues — cliquable pour trier -->
+                <th class="text-right px-6 py-4 hidden sm:table-cell">
+                  <button
+                    (click)="onSortPlaylists('clicks')"
+                    [class]="'flex items-center gap-1 ml-auto hover:text-[#e8c46c] transition-colors ' +
+                    (playlistSortColumn === 'clicks' ? 'text-[#e8c46c]' : '')">
+                    Vues
+                    <span class="text-xs">{{ getSortIcon('clicks') }}</span>
+                  </button>
+                </th>
+
+                <!-- Colonne Morceaux — cliquable pour trier -->
+                <th class="text-right px-6 py-4 hidden sm:table-cell">
+                  <button
+                    (click)="onSortPlaylists('songs')"
+                    [class]="'flex items-center gap-1 ml-auto hover:text-[#e8c46c] transition-colors ' +
+                    (playlistSortColumn === 'songs' ? 'text-[#e8c46c]' : '')">
+                    Morceaux
+                    <span class="text-xs">{{ getSortIcon('songs') }}</span>
+                  </button>
+                </th>
+
+                <th class="text-right px-6 py-4">Action</th>
+              </tr>
             </thead>
             <tbody>
-              @for (playlist of playlists; track playlist._id) {
+              @for (playlist of sortedPlaylists; track playlist._id) {
                 <tr class="border-b border-[#3d2d1e]/50 hover:bg-[#1a1410]/50 transition-colors">
                   <td class="px-6 py-4 font-medium max-w-[200px] truncate">{{ playlist.name }}</td>
                   <td class="px-6 py-4 text-[#a89078] hidden md:table-cell">{{ playlist.creator }}</td>
@@ -329,27 +395,4 @@
     }
 
   </div>
-
-  <!-- Modal de confirmation -->
-  @if (showConfirmModal) {
-    <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-         (click)="closeModal()">
-      <div class="bg-[#2a1f15] border border-[#3d2d1e] rounded-xl p-8 max-w-md w-full shadow-2xl"
-           (click)="$event.stopPropagation()">
-        <h3 class="text-lg font-bold mb-3" style="font-family: 'Playfair Display', serif">Confirmation requise</h3>
-        <p class="text-[#a89078] text-sm mb-6 leading-relaxed">{{ confirmMessage }}</p>
-        <div class="flex gap-3 justify-end">
-          <button (click)="closeModal()"
-                  class="px-5 py-2 border border-[#3d2d1e] text-[#a89078] text-sm rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
-            Annuler
-          </button>
-          <button (click)="confirmAction()"
-                  class="px-5 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-500 transition-all font-medium">
-            Confirmer
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
 </div>

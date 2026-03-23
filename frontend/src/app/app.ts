@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NotificationComponent } from './components/ui/notification/notification.component';
 import { CursorComponent } from './components/cursor/cursor.component';
+import {ConfirmModalComponent} from './components/ui/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NotificationComponent, CursorComponent],
+  imports: [RouterOutlet, NotificationComponent, CursorComponent, ConfirmModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
