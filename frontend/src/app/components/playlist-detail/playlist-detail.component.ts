@@ -6,31 +6,23 @@ import { Playlist, Song } from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
-
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule], // FormsModule ajouté pour le formulaire d'ajout
+  imports: [CommonModule, FormsModule],
   templateUrl: './playlist-detail.component.html',
   styleUrl: './playlist-detail.component.css'
 })
 export class PlaylistDetailComponent implements OnInit {
   playlist: Playlist | null = null;
-
-
-  // Contrôle l'affichage du formulaire d'ajout de morceau
   showAddSongForm: boolean = false;
-
-  // Modèle lié au formulaire d'ajout
   newSong: Song = { title: '', artist: '' };
-
-  // Messages de feedback utilisateur
-  errorMessage: string = '';
-  successMessage: string = '';
-
-  // Contrôle l'affichage de la modale de confirmation de suppression
   showDeleteConfirm: boolean = false;
+
+  likesCount: number = 0;
+  isLiked: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,7 +30,8 @@ export class PlaylistDetailComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private styleService: StyleService
+    private styleService: StyleService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -47,6 +40,9 @@ export class PlaylistDetailComponent implements OnInit {
       this.playlistService.getById(id).subscribe({
         next: (data) => {
           this.playlist = data;
+          // Initialise le compteur et l'état du like
+          this.likesCount = data.likes?.length ?? 0;
+          this.isLiked = this.checkIfLiked(data);
           this.cdr.detectChanges();
         },
         error: () => this.router.navigate(['/'])
@@ -54,48 +50,48 @@ export class PlaylistDetailComponent implements OnInit {
     }
   }
 
-  // Vérifie si l'utilisateur est connecté
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  // Vérifie si l'utilisateur connecté est le créateur de cette playlist
   isCreator(): boolean {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !this.playlist) return false;
     return this.playlist.createdBy === currentUser.id;
   }
 
-  // Récupère les contributeurs
-  getAuthors(): string {
-    if (!this.playlist) return '';
-    const contributors = this.playlist.contributors ?? [];
-
-    const creator = `<span class="font-semibold text-[#f5e6d3]">${this.playlist.creator}</span>`;
-
-    if (contributors.length === 0) return creator;
-
-    const last = contributors[contributors.length - 1];
-    const others = contributors.slice(0, -1);
-    const contribStr = others.length > 0
-      ? `${others.join(', ')} et ${last}`
-      : last;
-
-    return `${creator}<span class="text-[#f5e6d3]"> · ${contribStr}</span>`;
-  }
-
-  // Ouvre/ferme le formulaire et réinitialise les champs
   toggleAddSongForm(): void {
     this.showAddSongForm = !this.showAddSongForm;
     this.newSong = { title: '', artist: '' };
-    this.errorMessage = '';
-    this.successMessage = '';
   }
 
-  // Envoie le nouveau morceau au backend
+  // Vérifie si l'utilisateur connecté a déjà liké
+  checkIfLiked(playlist: Playlist): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !playlist.likes) return false;
+    return playlist.likes.includes(currentUser.id);
+  }
+
+  onToggleLike(): void {
+    if (!this.playlist?._id) return;
+
+    this.playlistService.toggleLike(this.playlist._id).subscribe({
+      next: (res) => {
+        this.likesCount = res.likes;
+        this.isLiked = res.liked;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.error('Erreur lors du like');
+        }
+      }
+    });
+  }
+
   onAddSong(): void {
     if (!this.newSong.title || !this.newSong.artist) {
-      this.errorMessage = 'Veuillez remplir le titre et l\'artiste';
+      this.notificationService.error('Veuillez remplir le titre et l\'artiste');
       return;
     }
 
@@ -103,13 +99,15 @@ export class PlaylistDetailComponent implements OnInit {
       next: (updatedPlaylist) => {
         this.playlist = updatedPlaylist;
         this.newSong = { title: '', artist: '' };
-        this.successMessage = 'Morceau ajouté avec succès !';
-        this.errorMessage = '';
         this.showAddSongForm = false;
+        this.notificationService.success('Morceau ajouté avec succès !');
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de l\'ajout';
+        // L'interceptor gère déjà les 401/403
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.error(err.error?.message || 'Erreur lors de l\'ajout');
+        }
       }
     });
   }
@@ -119,9 +117,15 @@ export class PlaylistDetailComponent implements OnInit {
 
   confirmDelete(): void {
     this.playlistService.delete(this.playlist!._id!).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.notificationService.success('Playlist supprimée !');
+        this.router.navigate(['/']);
+      },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erreur lors de la suppression';
+        // L'interceptor gère déjà les 401/403
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.error(err.error?.message || 'Erreur lors de la suppression');
+        }
         this.showDeleteConfirm = false;
       }
     });
@@ -129,7 +133,7 @@ export class PlaylistDetailComponent implements OnInit {
 
   goBack(): void { this.router.navigate(['/']); }
 
-  getGradientClass(style: string): string {
-    return this.styleService.getGradientClass(style);
+  getGradientStyle(style: string): { [key: string]: string } {
+    return this.styleService.getGradientStyle(style);
   }
 }

@@ -54,27 +54,74 @@
         <div class="flex flex-col md:flex-row gap-8 mb-12">
 
           <!-- Cover -->
-          <div [ngClass]="'w-full md:w-64 h-64 rounded-lg shadow-2xl ' + getGradientClass(playlist.style)"></div>
-
+          <div
+            [ngStyle]="getGradientStyle(playlist.style)"
+            class="w-full md:w-64 h-64 rounded-lg shadow-2xl">
+          </div>
           <!-- Infos + Actions -->
           <div class="flex flex-col justify-end flex-1">
             <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>
-            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight" style="font-family: 'Playfair Display', serif">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight" style="font-family: 'Playfair Display', serif">
               {{ playlist.name }}
             </h1>
-            <div class="flex items-center gap-2 text-sm flex-wrap mb-6">
-              <span [innerHTML]="getAuthors()"></span>
-              <span class="text-[#a89078]">•</span>
+
+            <!-- Créateur mis en avant -->
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-[#1a1410] font-bold text-xs">{{ playlist.creator.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div>
+                <p class="text-xs text-[#7a6050] uppercase tracking-wider">Créateur</p>
+                <p class="text-sm font-semibold text-[#f5e6d3]">{{ playlist.creator }}</p>
+              </div>
+            </div>
+
+            <!-- Contributeurs (affiché seulement s'il y en a) -->
+            @if (playlist.contributors && playlist.contributors.length > 0) {
+              <div class="flex items-start gap-2 mb-4">
+                <div class="flex -space-x-1 mt-1">
+                  @for (contributor of playlist.contributors.slice(0, 3); track contributor) {
+                    <div class="w-7 h-7 bg-[#3d2d1e] border-2 border-[#1a1410] rounded-full flex items-center justify-center flex-shrink-0">
+                      <span class="text-[#a89078] font-bold text-xs">{{ contributor.charAt(0).toUpperCase() }}</span>
+                    </div>
+                  }
+                </div>
+                <div>
+                  <p class="text-xs text-[#7a6050] uppercase tracking-wider">Contributeurs</p>
+                  <p class="text-sm text-[#a89078]">{{ playlist.contributors.join(', ') }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Métadonnées -->
+            <div class="flex items-center gap-2 text-sm flex-wrap mb-6 text-[#a89078]">
               <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
-              <span class="text-[#a89078]">•</span>
-              <span class="text-[#a89078]">{{ playlist.songs.length }} morceaux</span>
-              <span class="text-[#a89078]">•</span>
-              <span class="text-[#a89078]">{{ playlist.clicks }} vues</span>
+              <span>•</span>
+              <span>{{ playlist.songs.length }} morceaux</span>
+              <span>•</span>
+              <span>{{ playlist.clicks }} vues</span>
             </div>
 
             <!-- Boutons d'action -->
             <div class="flex flex-wrap gap-3">
-              <!-- Visible pour tout utilisateur connecté -->
+
+              <!-- Like -->
+              @if (isLoggedIn()) {
+                <button
+                  (click)="onToggleLike()"
+                  class="flex items-center gap-2 px-5 py-2.5 border font-semibold text-sm transition-all duration-200 rounded-full"
+                  [class]="isLiked
+        ? 'bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30'
+        : 'bg-[#2a1f15] border-[#3d2d1e] text-[#a89078] hover:border-red-500/30 hover:text-red-400'">
+                  {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
+                </button>
+              } @else {
+                <span class="flex items-center gap-2 px-5 py-2.5 text-sm text-[#7a6050]">
+      🤍 {{ likesCount }}
+    </span>
+              }
+
+              <!-- Ajouter un morceau -->
               @if (isLoggedIn()) {
                 <button
                   (click)="toggleAddSongForm()"
@@ -83,7 +130,7 @@
                 </button>
               }
 
-              <!-- Visible uniquement pour le créateur de la playlist -->
+              <!-- Supprimer — créateur uniquement -->
               @if (isCreator()) {
                 <button
                   (click)="openDeleteConfirm()"
@@ -91,21 +138,10 @@
                   Supprimer la playlist
                 </button>
               }
+
             </div>
           </div>
         </div>
-
-        <!-- Messages de feedback -->
-        @if (errorMessage) {
-          <div class="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 mb-6 rounded-lg">
-            {{ errorMessage }}
-          </div>
-        }
-        @if (successMessage) {
-          <div class="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 mb-6 rounded-lg">
-            {{ successMessage }}
-          </div>
-        }
 
         <!-- Formulaire ajout de morceau -->
         @if (showAddSongForm) {
@@ -143,12 +179,12 @@
               <div class="w-16 text-right">Durée</div>
             </div>
 
-            @for (song of playlist.songs; let i = $index; track song.title) {
+            @for (song of playlist.songs; let i = $index; track i) {
               <div class="grid grid-cols-[auto_1fr_1fr_auto] gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
                 <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
                 <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>
                 <div class="text-[#a89078] text-sm truncate">{{ song.artist }}</div>
-                <div class="w-16 text-right text-[#a89078] text-sm">--:--</div>
+                <div class="w-16 text-right text-[#a89078] text-sm">{{ song.duration || '--:--' }}</div>
               </div>
             }
 

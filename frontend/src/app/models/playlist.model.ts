@@ -1,6 +1,7 @@
 export interface Song {
   title: string;
   artist: string;
+  duration? : string;
 }
 
 export interface Playlist {
@@ -12,6 +13,14 @@ export interface Playlist {
   contributors: string[];
   style: string;
   createdBy?: string;
+  likes?: string[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface Style {
+  _id: string;
+  name: string;
+  color1: string;
+  color2: string;
 }
