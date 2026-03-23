@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
 
         // Générer le token JWT (valable 24h)
         const token = jwt.sign(
-            { userId: user._id, username: user.username },
+            { userId: user._id, username: user.username, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
@@ -73,7 +73,8 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                role : user.role
             }
         });
 
@@ -100,7 +101,7 @@ router.patch('/profile', authMiddleware, async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             req.user.userId,
             { username: username.trim() },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         res.json({

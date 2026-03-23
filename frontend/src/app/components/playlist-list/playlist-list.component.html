@@ -31,11 +31,13 @@
             class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
             + Nouvelle playlist
           </button>
-          <button
-            (click)="goToStats()"
-            class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
-            Statistiques
-          </button>
+          @if (isAdmin()) {
+            <button
+              (click)="router.navigate(['/admin'])"
+              class="px-4 py-2 bg-[#e8c46c]/10 text-[#e8c46c] text-xs font-semibold hover:bg-[#e8c46c]/20 transition-all rounded-full border border-[#e8c46c]/30">
+              ⚙ Admin
+            </button>
+          }
           <button
             (click)="onLogout()"
             class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">

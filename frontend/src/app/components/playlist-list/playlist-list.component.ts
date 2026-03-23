@@ -32,7 +32,7 @@ export class PlaylistListComponent implements OnInit {
   constructor(
     private playlistService: PlaylistService,
     private authService: AuthService,
-    private router: Router,
+    public router: Router,
     private cdr: ChangeDetectorRef,
     private styleService: StyleService,
     private notificationService: NotificationService
@@ -144,4 +144,7 @@ export class PlaylistListComponent implements OnInit {
   getGradientStyle(style: string): { [key: string]: string } {
     return this.styleService.getGradientStyle(style);
   }
+
+  isAdmin(): boolean { return this.authService.isAdmin(); }
+
 }
