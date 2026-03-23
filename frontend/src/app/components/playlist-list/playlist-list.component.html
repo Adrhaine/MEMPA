@@ -19,13 +19,21 @@
       <div class="flex items-center gap-3">
         @if (isLoggedIn()) {
           <!-- Utilisateur connecté -->
-          <span class="text-[#a89078] text-sm hidden sm:block">
-            Bonjour, <span
-          (click)="goToProfile()"
-          class="text-[#f5e6d3] font-medium cursor-pointer hover:text-[#e8c46c] transition-colors">
-            {{ getUsername() }}
-          </span>
-          </span>
+
+            <!-- Bouton Profil : avatar initiale + label -->
+          <button
+            (click)="goToProfile()"
+            class="flex items-center gap-2 px-3 py-1.5 bg-[#2a1f15] hover:bg-[#3d2d1e] transition-all rounded-full group"
+            title="Mon profil">
+            <div class="w-6 h-6 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-[#1a1410] font-bold text-[10px]">{{ getUsername().charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="hidden sm:flex flex-col items-start leading-tight">
+              <span class="text-[#f5e6d3] text-xs font-medium group-hover:text-[#e8c46c] transition-colors">{{ getUsername() }}</span>
+              <span class="text-[#7a6050] text-[10px]">Mon profil</span>
+            </div>
+          </button>
+
           <button
             (click)="goToCreate()"
             class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
