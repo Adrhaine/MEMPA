@@ -29,6 +29,16 @@ export class AuthService {
     );
   }
 
+  // PATCH — modifier le pseudo
+  updateUsername(username: string): Observable<{ user: any }> {
+    return this.http.patch<{ user: any }>(`${this.apiUrl}/profile`, { username }).pipe(
+      tap(response => {
+        // Met à jour le localStorage avec le nouveau pseudo
+        localStorage.setItem('user', JSON.stringify(response.user));
+      })
+    );
+  }
+
   // Déconnexion — on supprime les données du localStorage
   logout(): void {
     localStorage.removeItem('token');
