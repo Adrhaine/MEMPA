@@ -3,8 +3,7 @@ import { PlaylistDetailComponent } from './playlist-detail.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
-// Utilisation de describe.only pour Vitest
-describe.only('PlaylistDetailComponent', () => {
+describe('PlaylistDetailComponent', () => {
   let component: PlaylistDetailComponent;
   let fixture: ComponentFixture<PlaylistDetailComponent>;
 

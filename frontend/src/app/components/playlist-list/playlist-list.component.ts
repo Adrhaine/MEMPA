@@ -2,10 +2,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlaylistService } from '../../services/playlist.service';
 import { AuthService } from '../../services/auth.service';
-import { Playlist } from '../../models/playlist.model';
+import {Playlist, Style} from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
+import { NotificationService } from '../../services/notification.service';
+import { PaginatedPlaylists } from '../../services/playlist.service';
 
 @Component({
   selector: 'app-playlist-list',
@@ -19,56 +21,83 @@ export class PlaylistListComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = '';
   order: string = 'asc';
-
-  availableStyles: string[] = [];
+  availableStyles: Style[] = [];
   selectedStyles: string[] = [];
+
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalPlaylists: number = 0;
+  readonly limit: number = 8;
 
   constructor(
     private playlistService: PlaylistService,
     private authService: AuthService,
-    private router: Router,
+    public router: Router,
     private cdr: ChangeDetectorRef,
-    private styleService: StyleService
+    private styleService: StyleService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
-    // On charge les styles disponibles au démarrage
-    this.playlistService.getStyles().subscribe((styles: string[]) => {
-      this.availableStyles = styles;
-      this.cdr.detectChanges();
+    this.styleService.getAll().subscribe({
+      next: (styles: Style[]) => {
+        this.availableStyles = styles;
+        this.styleService.setCache(styles);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors du chargement des styles');
+      }
     });
-    this.loadPlaylists();
-  }
-
-  onStyleToggle(style: string): void {
-    const index = this.selectedStyles.indexOf(style);
-    if (index === -1) {
-      // Pas encore coché → on l'ajoute
-      this.selectedStyles.push(style);
-    } else {
-      // Déjà coché → on le retire
-      this.selectedStyles.splice(index, 1);
-    }
     this.loadPlaylists();
   }
 
   loadPlaylists(): void {
-    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles).subscribe((data: Playlist[]) => {
-      this.playlists = data;
-      this.cdr.detectChanges();
+    this.playlistService.getAll(this.searchTerm, this.sortBy, this.order, this.selectedStyles, this.currentPage, this.limit ).subscribe({
+      next: (data: PaginatedPlaylists) => {
+        this.playlists = data.playlists;
+        this.totalPages = data.totalPages;
+        this.totalPlaylists = data.total;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.notificationService.error('Impossible de charger les playlists, veuillez réessayer');
+      }
     });
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadPlaylists();
+    // Remonte en haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  goToProfile(): void { this.router.navigate(['/profile']); }
+
+  onStyleToggle(style: string): void {
+    const index = this.selectedStyles.indexOf(style);
+    if (index === -1) {
+      this.selectedStyles.push(style);
+    } else {
+      this.selectedStyles.splice(index, 1);
+    }
+    this.currentPage = 1;
+    this.loadPlaylists();
   }
 
   isStyleSelected(style: string): boolean {
     return this.selectedStyles.includes(style);
   }
 
-  onSearch(): void { this.loadPlaylists(); }
+  onSearch(): void { this.currentPage = 1; this.loadPlaylists(); }
 
   onSort(field: string): void {
     this.sortBy === field
       ? this.order = this.order === 'asc' ? 'desc' : 'asc'
       : (this.sortBy = field, this.order = 'asc');
+    this.currentPage = 1;
     this.loadPlaylists();
   }
 
@@ -78,17 +107,29 @@ export class PlaylistListComponent implements OnInit {
     this.order = 'asc';
     this.selectedStyles = [];
     this.loadPlaylists();
+    this.currentPage = 1;
   }
 
-  // Vérifie si l'utilisateur est connecté
-  isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    if (this.totalPages <= 7) {
+      // Peu de pages → on affiche tout
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+    } else {
+      // Beaucoup de pages → on affiche avec des "..."
+      pages.push(1);
+      if (this.currentPage > 3) pages.push('...');
+      for (let i = Math.max(2, this.currentPage - 1); i <= Math.min(this.totalPages - 1, this.currentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (this.currentPage < this.totalPages - 2) pages.push('...');
+      pages.push(this.totalPages);
+    }
+    return pages;
   }
 
-  // Récupère le nom de l'utilisateur connecté
-  getUsername(): string {
-    return this.authService.getCurrentUser()?.username || '';
-  }
+  isLoggedIn(): boolean { return this.authService.isLoggedIn(); }
+  getUsername(): string { return this.authService.getCurrentUser()?.username || ''; }
 
   onLogout(): void {
     this.authService.logout();
@@ -96,11 +137,14 @@ export class PlaylistListComponent implements OnInit {
   }
 
   goToDetail(id: string): void { this.router.navigate(['/playlist', id]); }
+  goToStats(): void { this.router.navigate(['/stats']); }
   goToCreate(): void { this.router.navigate(['/create']); }
   goToLogin(): void { this.router.navigate(['/login']); }
 
-  // Retourne la classe CSS du gradient en fonction du style de musique
-  getGradientClass(style: string): string {
-    return this.styleService.getGradientClass(style);
+  getGradientStyle(style: string): { [key: string]: string } {
+    return this.styleService.getGradientStyle(style);
   }
+
+  isAdmin(): boolean { return this.authService.isAdmin(); }
+
 }

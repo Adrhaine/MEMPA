@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 const SongSchema = new mongoose.Schema({
     title:  { type: String, required: true },
-    artist: { type: String, required: true }
+    artist: { type: String, required: true },
+    duration: { type: String }
+
 });
 
 const PlaylistSchema = new mongoose.Schema({
@@ -13,7 +15,8 @@ const PlaylistSchema = new mongoose.Schema({
     contributors: [String],
     style:        { type: String, required: true },
     // ObjectId = l'identifiant unique MongoDB de l'utilisateur
-    createdBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+    createdBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    likes:        [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
     timestamps: true // ajoute createdAt et updatedAt automatiquement
 });
