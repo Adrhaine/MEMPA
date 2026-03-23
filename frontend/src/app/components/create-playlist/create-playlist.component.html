@@ -28,12 +28,6 @@
       <p class="text-[#a89078] text-sm">Remplissez les informations ci-dessous pour créer votre playlist</p>
     </div>
 
-    @if (errorMessage) {
-      <div class="border border-red-500/30 bg-red-500/10 text-red-400 text-sm px-4 py-3 mb-6 rounded-md">
-        {{ errorMessage }}
-      </div>
-    }
-
     <!-- Main Form Card -->
     <div class="bg-[#2a1f15] rounded-lg p-8 mb-6">
       <!-- Playlist Info Form -->
@@ -63,13 +57,9 @@
             [(ngModel)]="playlist.style"
             class="w-full bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all cursor-pointer">
             <option value="" disabled selected class="bg-[#1a1410]">Sélectionnez un style...</option>
-            <option value="Rock" class="bg-[#1a1410]">Rock</option>
-            <option value="Pop" class="bg-[#1a1410]">Pop</option>
-            <option value="Jazz" class="bg-[#1a1410]">Jazz</option>
-            <option value="Electro" class="bg-[#1a1410]">Electro</option>
-            <option value="Hip-Hop" class="bg-[#1a1410]">Hip-Hop</option>
-            <option value="Classique" class="bg-[#1a1410]">Classique</option>
-            <option value="Autre" class="bg-[#1a1410]">Autre</option>
+            @for (style of availableStyles; track style._id) {
+              <option [value]="style.name" class="bg-[#1a1410]">{{ style.name }}</option>
+            }
           </select>
         </div>
       </div>

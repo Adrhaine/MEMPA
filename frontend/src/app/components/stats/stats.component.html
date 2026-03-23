@@ -1,0 +1,128 @@
+<div class="min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
+    <div class="max-w-7xl mx-auto flex items-center gap-4">
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors">
+        <span>←</span>
+        <span class="text-sm font-medium">Retour</span>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-[#1a1410] font-bold text-xs">M</span>
+        </div>
+        <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenu -->
+  <div class="max-w-7xl mx-auto px-8 py-8">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-5xl font-bold mb-2" style="font-family: 'Playfair Display', serif">
+        Statistiques
+      </h1>
+      <p class="text-[#a89078] text-sm">Vue d'ensemble de l'activité MEMPA</p>
+    </div>
+
+    @if (isLoading) {
+      <div class="flex items-center justify-center min-h-[40vh]">
+        <div class="w-16 h-16 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }
+
+    @if (!isLoading && stats) {
+
+      <!-- Cartes chiffres clés -->
+      <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Playlists</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalPlaylists }}</p>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Morceaux</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalSongs }}</p>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Total vues</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalViews }}</p>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Moy. morceaux</p>
+          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.avgSongs }}</p>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Style populaire</p>
+          <p class="text-xl font-bold text-[#e8c46c] truncate">{{ stats.keyMetrics.mostPopularStyle }}</p>
+        </div>
+
+        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
+          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Top contributeur</p>
+          @if (stats.keyMetrics.topContributor) {
+            <p class="text-xl font-bold text-[#e8c46c] truncate">{{ stats.keyMetrics.topContributor.name }}</p>
+            <p class="text-[#a89078] text-xs mt-1">{{ stats.keyMetrics.topContributor.count }} contributions</p>
+          } @else {
+            <p class="text-[#7a6050] text-sm">Aucun</p>
+          }
+        </div>
+      </div>
+
+      <!-- Graphiques ligne 1 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+        <!-- Camembert styles -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+            Répartition des styles
+          </h2>
+          <canvas #styleChart></canvas>
+        </div>
+
+        <!-- Top 5 playlists -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+            Top 5 playlists les plus vues
+          </h2>
+          <canvas #topPlaylistsChart></canvas>
+        </div>
+      </div>
+
+      <!-- Graphiques ligne 2 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+        <!-- Morceaux par playlist -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+            Morceaux par playlist
+          </h2>
+          <canvas #songsChart></canvas>
+        </div>
+
+        <!-- Évolution dans le temps -->
+        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+          <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+            Créations (30 derniers jours)
+          </h2>
+          <canvas #timelineChart></canvas>
+        </div>
+      </div>
+
+      <!-- Graphique ligne 3 — pleine largeur -->
+      <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e]">
+        <h2 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+          Styles — créations vs vues
+        </h2>
+        <canvas #styleCompareChart></canvas>
+      </div>
+    }
+  </div>
+</div>

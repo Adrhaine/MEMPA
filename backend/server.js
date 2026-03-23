@@ -17,8 +17,20 @@ mongoose.connect(MONGO_URL)
 
 const playlistRoutes = require('./routes/playlists');
 const authRoutes = require('./routes/auth');
+const stylesRoutes = require('./routes/styles');
+const statsRoutes = require('./routes/stats');
+
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/styles', stylesRoutes);
+app.use('/api/stats', statsRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));
+
+// Le serveur ne se lance sur le port réseau que si nous ne sommes pas en train d'exécuter des tests avec Jest
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));
+}
+
+// Exportation de l'application pour Supertest
+module.exports = app;

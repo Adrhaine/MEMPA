@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const authMiddleware = require('../middleware/auth');
 
 // POST /api/auth/register — Créer un compte
 router.post('/register', async (req, res) => {
@@ -73,6 +74,40 @@ router.post('/login', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// PATCH /api/auth/profile — Modifier le pseudo
+router.patch('/profile', authMiddleware, async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        if (!username || username.trim() === '') {
+            return res.status(400).json({ message: 'Le pseudo ne peut pas être vide' });
+        }
+
+        // Vérifier si le pseudo est déjà pris par quelqu'un d'autre
+        const existing = await User.findOne({ username, _id: { $ne: req.user.userId } });
+        if (existing) {
+            return res.status(400).json({ message: 'Ce pseudo est déjà pris' });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.userId,
+            { username: username.trim() },
+            { new: true }
+        );
+
+        res.json({
+            user: {
+                id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email
             }
         });
 

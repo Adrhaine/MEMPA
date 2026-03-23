@@ -9,6 +9,11 @@ router.get('/', async (req, res) => {
         const { sortBy, order, search } = req.query;
         // req.query récupère les paramètres dans l'URL
 
+        // Pagination — page commence à 1, limit = nb de résultats par page
+        const page  = parseInt(req.query.page)  || 1;
+        const limit = parseInt(req.query.limit) || 8;
+        const skip  = (page - 1) * limit; // ex: page 2 → on saute les 8 premiers
+
         // Construction du filtre de recherche full-text
         let filter = {};
         const conditions = [];
@@ -35,8 +40,20 @@ router.get('/', async (req, res) => {
             sortOptions[sortBy] = order === 'desc' ? -1 : 1;
         }
 
-        const playlists = await Playlists.find(filter).sort(sortOptions);
-        res.json(playlists);
+        // On fait deux requêtes en parallèle :
+        // 1. les playlists de la page courante
+        // 2. le nombre total (pour calculer le nombre de pages)
+        const [playlists, total] = await Promise.all([
+            Playlists.find(filter).sort(sortOptions).skip(skip).limit(limit),
+            Playlists.countDocuments(filter)
+        ]);
+
+        res.json({
+            playlists,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit)
+        });
 
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -54,13 +71,35 @@ router.get('/styles', async (req, res) => {
     }
 });
 
+// GET — playlists créées par l'utilisateur connecté
+router.get('/my', authMiddleware, async (req, res) => {
+    try {
+        const playlists = await Playlists.find({ createdBy: req.user.userId })
+            .sort({ createdAt: -1 });
+        res.json(playlists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET — playlists likées par l'utilisateur connecté
+router.get('/liked', authMiddleware, async (req, res) => {
+    try {
+        const playlists = await Playlists.find({ likes: req.user.userId })
+            .sort({ createdAt: -1 });
+        res.json(playlists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET — une playlist par ID + incrément clics
 router.get('/:id', async (req, res) => {
     try {
         const playlist = await Playlists.findByIdAndUpdate(
             req.params.id,
             { $inc: { clicks: 1 } },
-            { new: true }
+            { returnDocument: 'after' }
 
         );
         if (!playlist) return res.status(404).json({ message: 'Playlists non trouvée' });
@@ -116,22 +155,28 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'Aucun morceau fourni' });
         }
 
-        // $push + $each = ajoute tous les éléments du tableau en une seule opération
-        const updatedPlaylist = await Playlists.findByIdAndUpdate(
-            req.params.id,
-            {
-                // Ajoute les morceaux au tableau songs
-                $push: { songs: { $each: songs } },
-                // Ajoute l'username aux contributeurs SEULEMENT s'il n'est pas déjà présent
-                // $addToSet = équivalent d'un Set : pas de doublons
-                $addToSet: { contributors: req.user.username }
-            },
-            { new: true }
-        );
-
-        if (!updatedPlaylist) {
+        // On récupère la playlist pour vérifier le créateur
+        const playlist = await Playlists.findById(req.params.id).exec();
+        if (!playlist) {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
+
+        // Construction de l'update
+        const update = {
+            $push: { songs: { $each: songs } }
+        };
+
+        // On ajoute aux contributeurs seulement si ce n'est pas le créateur
+        if (playlist.creator !== req.user.username) {
+            //On utilise le addToSet pour pas faire de doublon
+            update.$addToSet = { contributors: req.user.username };
+        }
+
+        const updatedPlaylist = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            update,
+            { returnDocument: 'after' }
+        );
 
         res.json(updatedPlaylist);
 
@@ -139,5 +184,39 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+// POST — liker ou unliker une playlist (protégée)
+router.post('/:id/like', authMiddleware, async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        // On vérifie si l'utilisateur a déjà liké
+        const userId = req.user.userId;
+        const alreadyLiked = playlist.likes.some(id => id.toString() === userId);
+
+        const update = alreadyLiked
+            ? { $pull:     { likes: userId } }  // déjà liké → on retire
+            : { $addToSet: { likes: userId } };  // pas encore → on ajoute
+
+        const updated = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            update,
+            { new: true }
+        );
+
+        res.json({
+            likes: updated.likes.length,         // nb total de likes
+            liked: !alreadyLiked                 // état après l'action
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
 
 module.exports = router;
