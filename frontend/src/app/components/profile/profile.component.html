@@ -1,0 +1,164 @@
+<div class="min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
+    <div class="max-w-7xl mx-auto flex items-center gap-4">
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors">
+        <span>←</span>
+        <span class="text-sm font-medium">Retour</span>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+          <span class="text-[#1a1410] font-bold text-xs">M</span>
+        </div>
+        <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-8 py-10">
+
+    <!-- Header profil -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10">
+
+      <!-- Avatar -->
+      <div class="w-20 h-20 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
+        <span class="text-[#1a1410] font-bold text-3xl">{{ username.charAt(0).toUpperCase() }}</span>
+      </div>
+
+      <!-- Infos -->
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-1">
+          @if (!showEditForm) {
+            <h1 class="text-3xl font-bold" style="font-family: 'Playfair Display', serif">
+              {{ username }}
+            </h1>
+            <button
+              (click)="showEditForm = true; newUsername = username"
+              class="text-xs text-[#7a6050] hover:text-[#e8c46c] transition-colors underline">
+              Modifier
+            </button>
+          } @else {
+            <!-- Formulaire modification pseudo -->
+            <div class="flex items-center gap-2">
+              <input
+                [(ngModel)]="newUsername"
+                class="bg-[#241a10] border border-[#3d2d1e] text-[#f5e6d3] px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c]"
+              />
+              <button
+                (click)="onUpdateUsername()"
+                class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs rounded-full hover:bg-[#f0d080] transition-all">
+                Valider
+              </button>
+              <button
+                (click)="showEditForm = false"
+                class="px-4 py-2 text-xs text-[#7a6050] hover:text-[#f5e6d3] transition-colors">
+                Annuler
+              </button>
+            </div>
+          }
+        </div>
+        <p class="text-[#7a6050] text-sm">{{ email }}</p>
+        <div class="flex gap-4 mt-2 text-sm text-[#a89078]">
+          <span><span class="font-semibold text-[#f5e6d3]">{{ myPlaylists.length }}</span> playlists créées</span>
+          <span><span class="font-semibold text-[#f5e6d3]">{{ likedPlaylists.length }}</span> playlists likées</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="flex gap-1 mb-8 border-b border-[#3d2d1e]">
+      <button
+        (click)="setTab('my')"
+        class="px-5 py-3 text-sm font-medium transition-all"
+        [class]="activeTab === 'my'
+          ? 'text-[#e8c46c] border-b-2 border-[#e8c46c]'
+          : 'text-[#7a6050] hover:text-[#a89078]'">
+        Mes playlists
+      </button>
+      <button
+        (click)="setTab('liked')"
+        class="px-5 py-3 text-sm font-medium transition-all"
+        [class]="activeTab === 'liked'
+          ? 'text-[#e8c46c] border-b-2 border-[#e8c46c]'
+          : 'text-[#7a6050] hover:text-[#a89078]'">
+        ❤️ Mes likes
+      </button>
+    </div>
+
+    <!-- Contenu onglet Mes playlists -->
+    @if (activeTab === 'my') {
+      @if (myPlaylists.length === 0) {
+        <div class="text-center py-20 text-[#7a6050]">
+          <p class="text-5xl mb-4">🎵</p>
+          <p class="text-sm tracking-widest uppercase">Aucune playlist créée</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          @for (playlist of myPlaylists; track playlist._id) {
+            <div
+              (click)="goToDetail(playlist._id!)"
+              class="group bg-[#2a1f15] p-4 cursor-pointer hover:bg-[#3d2d1e] transition-all duration-300 rounded-lg">
+              <div
+                [ngStyle]="getGradientStyle(playlist.style)"
+                class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
+              </div>
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-[#e8c46c] transition-colors"
+                  style="font-family: 'Playfair Display', serif">
+                {{ playlist.name }}
+              </h2>
+              <p class="text-[#a89078] text-xs mb-2">
+                <span class="text-[#e8c46c]/80">{{ playlist.style }}</span>
+              </p>
+              <div class="flex items-center gap-2 text-[11px] text-[#7a6050]">
+                <span>{{ playlist.songs.length }} morceaux</span>
+                <span>·</span>
+                <span>{{ playlist.clicks }} vues</span>
+                <span>·</span>
+                <span>❤️ {{ playlist.likes?.length ?? 0 }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Contenu onglet Mes likes -->
+    @if (activeTab === 'liked') {
+      @if (likedPlaylists.length === 0) {
+        <div class="text-center py-20 text-[#7a6050]">
+          <p class="text-5xl mb-4">🤍</p>
+          <p class="text-sm tracking-widest uppercase">Aucune playlist likée</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          @for (playlist of likedPlaylists; track playlist._id) {
+            <div
+              (click)="goToDetail(playlist._id!)"
+              class="group bg-[#2a1f15] p-4 cursor-pointer hover:bg-[#3d2d1e] transition-all duration-300 rounded-lg">
+              <div
+                [ngStyle]="getGradientStyle(playlist.style)"
+                class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
+              </div>
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-[#e8c46c] transition-colors"
+                  style="font-family: 'Playfair Display', serif">
+                {{ playlist.name }}
+              </h2>
+              <p class="text-[#a89078] text-xs mb-2">
+                <span class="text-[#e8c46c]/80">{{ playlist.style }}</span> · {{ playlist.creator }}
+              </p>
+              <div class="flex items-center gap-2 text-[11px] text-[#7a6050]">
+                <span>{{ playlist.songs.length }} morceaux</span>
+                <span>·</span>
+                <span>{{ playlist.clicks }} vues</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</div>

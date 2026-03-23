@@ -16,12 +16,6 @@ export class PlaylistService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Authorization': `Bearer ${this.authService.getToken()}`
-    });
-  }
-
   getAll(
     search: string = '',
     sortBy: string = '',
@@ -41,10 +35,6 @@ export class PlaylistService {
     return this.http.get<PaginatedPlaylists>(this.apiUrl, { params });
   }
 
-  getStyles(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/styles`);
-  }
-
   getById(id: string): Observable<Playlist> {
     return this.http.get<Playlist>(`${this.apiUrl}/${id}`);
   }
@@ -53,27 +43,33 @@ export class PlaylistService {
     return this.http.post<{ likes: number; liked: boolean }>(
       `${this.apiUrl}/${id}/like`,
       {},
-      { headers: this.getAuthHeaders() }
     );
+  }
+
+  // GET — playlists créées par l'utilisateur connecté
+  getMyPlaylists(): Observable<Playlist[]> {
+    return this.http.get<Playlist[]>(`${this.apiUrl}/my`);
+  }
+
+// GET — playlists likées par l'utilisateur connecté
+  getLikedPlaylists(): Observable<Playlist[]> {
+    return this.http.get<Playlist[]>(`${this.apiUrl}/liked`);
   }
 
   create(playlist: Playlist): Observable<Playlist> {
     return this.http.post<Playlist>(this.apiUrl, playlist, {
-      headers: this.getAuthHeaders()
     });
   }
 
   // DELETE — créateur uniquement
   delete(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`, {
-      headers: this.getAuthHeaders()
     });
   }
 
   // PATCH — tout utilisateur connecté peut ajouter des morceaux
   addSongs(id: string, songs: { title: string; artist: string }[]): Observable<Playlist> {
     return this.http.patch<Playlist>(`${this.apiUrl}/${id}/songs`, { songs }, {
-      headers: this.getAuthHeaders()
     });
   }
 }

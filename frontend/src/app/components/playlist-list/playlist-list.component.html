@@ -20,7 +20,11 @@
         @if (isLoggedIn()) {
           <!-- Utilisateur connecté -->
           <span class="text-[#a89078] text-sm hidden sm:block">
-            Bonjour, <span class="text-[#f5e6d3] font-medium">{{ getUsername() }}</span>
+            Bonjour, <span
+          (click)="goToProfile()"
+          class="text-[#f5e6d3] font-medium cursor-pointer hover:text-[#e8c46c] transition-colors">
+            {{ getUsername() }}
+          </span>
           </span>
           <button
             (click)="goToCreate()"

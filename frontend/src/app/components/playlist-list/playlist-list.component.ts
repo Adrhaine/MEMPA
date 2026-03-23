@@ -74,6 +74,7 @@ export class PlaylistListComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  goToProfile(): void { this.router.navigate(['/profile']); }
 
   onStyleToggle(style: string): void {
     const index = this.selectedStyles.indexOf(style);

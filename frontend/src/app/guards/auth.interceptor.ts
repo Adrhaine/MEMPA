@@ -10,6 +10,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const notificationService = inject(NotificationService);
 
+  const token = authService.getToken();
+  if (token) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+
   return next(req).pipe(
     catchError((error) => {
       if (error.status === 401 || error.status === 403) {

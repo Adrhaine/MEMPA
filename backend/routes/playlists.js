@@ -71,6 +71,28 @@ router.get('/styles', async (req, res) => {
     }
 });
 
+// GET — playlists créées par l'utilisateur connecté
+router.get('/my', authMiddleware, async (req, res) => {
+    try {
+        const playlists = await Playlists.find({ createdBy: req.user.userId })
+            .sort({ createdAt: -1 });
+        res.json(playlists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET — playlists likées par l'utilisateur connecté
+router.get('/liked', authMiddleware, async (req, res) => {
+    try {
+        const playlists = await Playlists.find({ likes: req.user.userId })
+            .sort({ createdAt: -1 });
+        res.json(playlists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET — une playlist par ID + incrément clics
 router.get('/:id', async (req, res) => {
     try {
@@ -194,5 +216,7 @@ router.post('/:id/like', authMiddleware, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+
 
 module.exports = router;
