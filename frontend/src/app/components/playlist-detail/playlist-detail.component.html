@@ -54,8 +54,10 @@
         <div class="flex flex-col md:flex-row gap-8 mb-12">
 
           <!-- Cover -->
-          <div [ngClass]="'w-full md:w-64 h-64 rounded-lg shadow-2xl ' + getGradientClass(playlist.style)"></div>
-
+          <div
+            [ngStyle]="getGradientStyle(playlist.style)"
+            class="w-full md:w-64 h-64 rounded-lg shadow-2xl">
+          </div>
           <!-- Infos + Actions -->
           <div class="flex flex-col justify-end flex-1">
             <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>

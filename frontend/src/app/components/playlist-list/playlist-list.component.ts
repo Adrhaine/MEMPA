@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlaylistService } from '../../services/playlist.service';
 import { AuthService } from '../../services/auth.service';
-import { Playlist } from '../../models/playlist.model';
+import {Playlist, Style} from '../../models/playlist.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
@@ -21,7 +21,7 @@ export class PlaylistListComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = '';
   order: string = 'asc';
-  availableStyles: string[] = [];
+  availableStyles: Style[] = [];
   selectedStyles: string[] = [];
 
   currentPage: number = 1;
@@ -39,9 +39,10 @@ export class PlaylistListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.playlistService.getStyles().subscribe({
-      next: (styles: string[]) => {
+    this.styleService.getAll().subscribe({
+      next: (styles: Style[]) => {
         this.availableStyles = styles;
+        this.styleService.setCache(styles);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -138,7 +139,7 @@ export class PlaylistListComponent implements OnInit {
   goToCreate(): void { this.router.navigate(['/create']); }
   goToLogin(): void { this.router.navigate(['/login']); }
 
-  getGradientClass(style: string): string {
-    return this.styleService.getGradientClass(style);
+  getGradientStyle(style: string): { [key: string]: string } {
+    return this.styleService.getGradientStyle(style);
   }
 }

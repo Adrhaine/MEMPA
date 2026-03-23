@@ -77,15 +77,15 @@
     @if (availableStyles.length > 0) {
       <div class="flex flex-wrap gap-2 items-center mb-8">
         <span class="text-[#7a6050] text-xs uppercase tracking-widest mr-1">Styles :</span>
-        @for (style of availableStyles; track style) {
+        @for (style of availableStyles; track style._id) {
           <button
-            (click)="onStyleToggle(style)"
-            [class]="isStyleSelected(style)
-          ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
-          : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
-            <span [class]="'w-2 h-2 rounded-full ' + getGradientClass(style)"></span>
-            {{ style }}
-            @if (isStyleSelected(style)) { <span>✕</span> }
+            (click)="onStyleToggle(style.name)"
+            [class]="isStyleSelected(style.name)
+  ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
+  : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
+            <span class="w-2 h-2 rounded-full" [ngStyle]="getGradientStyle(style.name)"></span>
+            {{ style.name }}
+            @if (isStyleSelected(style.name)) { <span>✕</span> }
           </button>
         }
       </div>
@@ -108,8 +108,8 @@
 
           <!-- Cover with dynamic gradient -->
           <div
-            [ngClass]="'w-full aspect-square rounded-md mb-4 flex items-center justify-center relative overflow-hidden transition-all duration-300 ' + getGradientClass(playlist.style)"
-            class="group-hover:brightness-110">
+            [ngStyle]="getGradientStyle(playlist.style)"
+            class="w-full aspect-square rounded-md mb-4 flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:brightness-110">
           </div>
 
           <!-- Infos -->

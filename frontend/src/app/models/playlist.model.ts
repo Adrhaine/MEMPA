@@ -16,3 +16,10 @@ export interface Playlist {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface Style {
+  _id: string;
+  name: string;
+  color1: string;
+  color2: string;
+}
