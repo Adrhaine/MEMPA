@@ -56,7 +56,7 @@ export class CreatePlaylistComponent implements OnInit {
 
   addSong(): void {
     if (!this.newSong.title || !this.newSong.artist) {
-      this.notificationService.error('Veuillez remplir le titre et l\'artiste');
+      this.notificationService.warning('Veuillez remplir le titre et l\'artiste');
       return;
     }
     this.playlist.songs.push({ ...this.newSong });
@@ -69,7 +69,7 @@ export class CreatePlaylistComponent implements OnInit {
 
   submit(): void {
     if (!this.playlist.name || !this.playlist.style) {
-      this.notificationService.error('Veuillez remplir le nom et le style de la playlist');
+      this.notificationService.warning('Veuillez remplir le nom et le style de la playlist');
       return;
     }
     this.playlistService.create(this.playlist).subscribe({

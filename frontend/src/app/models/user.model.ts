@@ -3,7 +3,7 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  role: 'User' | 'admin';
+  role: 'user' | 'admin';
 }
 
 // Représente la réponse du serveur après un login réussi

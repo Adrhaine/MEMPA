@@ -138,7 +138,6 @@ export class PlaylistListComponent implements OnInit {
   }
 
   goToDetail(id: string): void { this.router.navigate(['/playlist', id]); }
-  goToStats(): void { this.router.navigate(['/stats']); }
   goToCreate(): void { this.router.navigate(['/create']); }
   goToLogin(): void { this.router.navigate(['/login']); }
 

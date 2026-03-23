@@ -84,6 +84,10 @@ export class AdminService {
     return this.http.post(`${this.apiUrl}/styles`, { name, color1, color2 });
   }
 
+  updateStyle(id: string, name: string, color1: string, color2: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/styles/${id}`, { name, color1, color2 });
+  }
+
   deleteStyle(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/styles/${id}`);
   }

@@ -91,7 +91,7 @@ export class PlaylistDetailComponent implements OnInit {
 
   onAddSong(): void {
     if (!this.newSong.title || !this.newSong.artist) {
-      this.notificationService.error('Veuillez remplir le titre et l\'artiste');
+      this.notificationService.warning('Veuillez remplir le titre et l\'artiste');
       return;
     }
 

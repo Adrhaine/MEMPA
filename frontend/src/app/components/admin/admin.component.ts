@@ -4,16 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService, AdminUser, AdminPlaylist, AdminStats } from '../../services/admin.service';
 import { StyleService } from '../../services/style.service';
-import { Style } from '../../services/style.service';
+import { Style } from '../../models/playlist.model';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { ViewChild, ElementRef } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import {ConfirmService} from '../../services/confirm.service';
 
 
 Chart.register(...registerables);
 
 type AdminTab = 'stats' | 'users' | 'styles' | 'playlists';
+type PlaylistSortColumn = 'clicks' | 'songs' | null;
 
 @Component({
   selector: 'app-admin',
@@ -32,18 +34,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     { id: 'stats',     label: '📊 Statistiques' },
     { id: 'users',     label: '👥 Utilisateurs' },
     { id: 'styles',    label: '🎵 Styles musicaux' },
-    { id: 'playlists', label: '🗑️ Playlists' }
+    { id: 'playlists', label: '🎧 Playlists' }
   ];
-
-  // Modale de confirmation
-  showConfirmModal: boolean = false;
-  confirmMessage: string = '';
-  pendingAction: (() => void) | null = null;
 
   stats: AdminStats | null = null;
   users: AdminUser[] = [];
   playlists: AdminPlaylist[] = [];
   styles: Style[] = [];
+
+  private usersLoaded: boolean = false;
+  private stylesLoaded: boolean = false;
+  private playlistsLoaded: boolean = false;
 
   currentPage: number = 1;
   totalPages: number = 1;
@@ -56,6 +57,14 @@ export class AdminComponent implements OnInit, OnDestroy {
   newStyleColor1: string = '#3d2d1e';
   newStyleColor2: string = '#1a1410';
   showAddStyleForm: boolean = false;
+
+  playlistSortColumn: PlaylistSortColumn = null;
+  playlistSortOrder: 'asc' | 'desc' = 'asc';
+
+  editingStyleId: string | null = null; // _id du style en cours d'édition
+  editStyleName: string = '';
+  editStyleColor1: string = '#3d2d1e';
+  editStyleColor2: string = '#1a1410';
 
   @ViewChild('styleChart') styleChartRef?: ElementRef;
   @ViewChild('timelineChart') timelineChartRef?: ElementRef;
@@ -70,6 +79,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     private styleService: StyleService,
     private authService: AuthService,
     private notificationService: NotificationService,
+    private confirmService: ConfirmService,
     public router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -99,9 +109,9 @@ export class AdminComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createCharts(), 0);
         }
         break;
-      case 'users':     if (this.users.length === 0) this.loadUsers(); break;
-      case 'styles':    if (this.styles.length === 0) this.loadStyles(); break;
-      case 'playlists': if (this.playlists.length === 0) this.loadPlaylists(); break;
+      case 'users':     if (!this.usersLoaded) this.loadUsers(); break;
+      case 'styles':    if (!this.stylesLoaded) this.loadStyles(); break;
+      case 'playlists': if (!this.playlistsLoaded) this.loadPlaylists(); break;
     }
   }
 
@@ -128,7 +138,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadUsers(): void {
     this.isLoading = true;
     this.adminService.getUsers().subscribe({
-      next: (users) => { this.users = users; this.isLoading = false; this.cdr.detectChanges(); },
+      next: (users) => {
+        this.users = users;
+        this.usersLoaded = true;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
       error: () => { this.isLoading = false; this.notificationService.error('Impossible de charger les utilisateurs'); this.cdr.detectChanges(); }
     });
   }
@@ -136,7 +151,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadStyles(): void {
     this.isLoading = true;
     this.styleService.getAll().subscribe({
-      next: (styles) => { this.styles = styles; this.isLoading = false; this.cdr.detectChanges(); },
+      next: (styles) => {
+        this.styles = styles;
+        this.stylesLoaded = true;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
       error: () => { this.isLoading = false; this.notificationService.error('Impossible de charger les styles'); this.cdr.detectChanges(); }
     });
   }
@@ -147,12 +167,76 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.adminService.getPlaylists(page, this.playlistSearch).subscribe({
       next: (data) => {
         this.playlists = data.playlists;
+        this.playlistsLoaded = true;
         this.totalPages = data.totalPages;
         this.totalPlaylists = data.total;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: () => { this.isLoading = false; this.notificationService.error('Impossible de charger les playlists'); this.cdr.detectChanges(); }
+    });
+  }
+
+  onSortPlaylists(column: 'clicks' | 'songs'): void {
+    if (this.playlistSortColumn === column) {
+      // Même colonne -> on inverse l'ordre
+      this.playlistSortOrder = this.playlistSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Nouvelle colonne -> on repart en ordre croissant
+      this.playlistSortColumn = column;
+      this.playlistSortOrder = 'asc';
+    }
+  }
+
+  get sortedPlaylists(): AdminPlaylist[] {
+    if (!this.playlistSortColumn) return this.playlists; // pas de tri -> ordre original
+
+    return [...this.playlists].sort((a, b) => {
+      // Pour 'songs' on compare la longueur du tableau, pour 'clicks' la valeur directe
+      const valA = this.playlistSortColumn === 'songs' ? a.songs.length : a.clicks;
+      const valB = this.playlistSortColumn === 'songs' ? b.songs.length : b.clicks;
+
+      return this.playlistSortOrder === 'asc' ? valA - valB : valB - valA;
+    });
+  }
+
+  getSortIcon(column: 'clicks' | 'songs'): string {
+    if (this.playlistSortColumn !== column) return '↕';
+    return this.playlistSortOrder === 'asc' ? '↑' : '↓';
+  }
+
+  startEditStyle(style: Style): void {
+    this.editingStyleId = style._id;
+    this.editStyleName   = style.name;
+    this.editStyleColor1 = style.color1;
+    this.editStyleColor2 = style.color2;
+  }
+
+  cancelEditStyle(): void {
+    this.editingStyleId = null;
+  }
+
+  submitEditStyle(): void {
+    if (!this.editStyleName.trim()) {
+      this.notificationService.warning('Le nom du style est obligatoire');
+      return;
+    }
+
+    this.adminService.updateStyle(
+      this.editingStyleId!,
+      this.editStyleName.trim(),
+      this.editStyleColor1,
+      this.editStyleColor2
+    ).subscribe({
+      next: (updatedStyle) => {
+        // On met à jour localement dans le tableau sans recharger toute la liste
+        const index = this.styles.findIndex(s => s._id === this.editingStyleId);
+        if (index !== -1) this.styles[index] = updatedStyle;
+        this.editingStyleId = null;
+        this.notificationService.success(`Style "${updatedStyle.name}" modifié`);
+        this.cdr.detectChanges();
+      },
+      error: (err) => this.notificationService.error(err.error?.message || 'Erreur lors de la modification')
     });
   }
 
@@ -169,7 +253,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   confirmDeleteUser(user: AdminUser): void {
-    this.askConfirmation(
+    this.confirmService.ask(
       `Supprimer l'utilisateur "${user.username}" ? Cette action est irréversible.`,
       () => this.deleteUser(user._id)
     );
@@ -189,7 +273,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   toggleUserRole(user: AdminUser): void {
     const newRole = user.role === 'admin' ? 'user' : 'admin';
     const label   = newRole === 'admin' ? 'promouvoir admin' : 'rétrograder en user';
-    this.askConfirmation(
+    this.confirmService.ask(
       `Voulez-vous ${label} "${user.username}" ?`,
       () => this.updateUserRole(user._id, newRole)
     );
@@ -327,7 +411,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   confirmDeletePlaylist(playlist: AdminPlaylist): void {
-    this.askConfirmation(
+    this.confirmService.ask(
       `Supprimer la playlist "${playlist.name}" ? Cette action est irréversible.`,
       () => this.deletePlaylist(playlist._id)
     );
@@ -347,7 +431,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   submitAddStyle(): void {
     if (!this.newStyleName.trim()) {
-      this.notificationService.error('Le nom du style est obligatoire');
+      this.notificationService.warning('Le nom du style est obligatoire');
       return;
     }
     this.adminService.addStyle(this.newStyleName.trim(), this.newStyleColor1, this.newStyleColor2).subscribe({
@@ -365,7 +449,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   confirmDeleteStyle(style: Style): void {
-    this.askConfirmation(
+    this.confirmService.ask(
       `Supprimer le style "${style.name}" ?`,
       () => this.deleteStyle(style._id)
     );
@@ -380,23 +464,6 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
       error: (err) => this.notificationService.error(err.error?.message || 'Erreur lors de la suppression')
     });
-  }
-
-  askConfirmation(message: string, action: () => void): void {
-    this.confirmMessage = message;
-    this.pendingAction  = action;
-    this.showConfirmModal = true;
-  }
-
-  confirmAction(): void {
-    if (this.pendingAction) this.pendingAction();
-    this.closeModal();
-  }
-
-  closeModal(): void {
-    this.showConfirmModal = false;
-    this.pendingAction    = null;
-    this.confirmMessage   = '';
   }
 
   formatDate(dateStr: string): string {
