@@ -31,10 +31,13 @@
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
     "@tailwindcss/forms": "^0.5.11",
+    "@tsparticles/slim": "^3.9.1",
     "chart.js": "^4.5.1",
     "rxjs": "~7.8.0",
     "tailwindcss": "^3.4.19",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "tsparticles": "^3.9.1",
+    "tsparticles-engine": "^2.12.0"
   },
   "devDependencies": {
     "@angular/build": "^21.1.3",
