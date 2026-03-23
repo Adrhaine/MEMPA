@@ -111,3 +111,7 @@ h1, h2, h3 {
 .page-animate {
   animation: fadeSlideIn 400ms ease-out;
 }
+
+* {
+  cursor: none !important;
+}
