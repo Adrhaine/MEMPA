@@ -84,7 +84,7 @@ export class PlaylistService {
   }
 
   rename(id: string, name: string): Observable<Playlist> {
-    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/name`, { name });
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/rename`, { name });
   }
 
   // DELETE — créateur uniquement
