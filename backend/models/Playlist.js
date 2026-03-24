@@ -16,7 +16,8 @@ const PlaylistSchema = new mongoose.Schema({
     style:        { type: String, required: true },
     // ObjectId = l'identifiant unique MongoDB de l'utilisateur
     createdBy:    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    likes:        [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    likes:        [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    coverImage:   { type: String, default: null }
 }, {
     timestamps: true // ajoute createdAt et updatedAt automatiquement
 });

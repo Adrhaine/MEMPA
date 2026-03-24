@@ -56,9 +56,33 @@ export class PlaylistService {
     return this.http.get<Playlist[]>(`${this.apiUrl}/liked`);
   }
 
-  create(playlist: Playlist): Observable<Playlist> {
-    return this.http.post<Playlist>(this.apiUrl, playlist, {
-    });
+  create(playlist: Playlist, coverFile?: File): Observable<Playlist> {
+    const formData = new FormData();
+    formData.append('name', playlist.name);
+    formData.append('creator', playlist.creator);
+    formData.append('style', playlist.style);
+    formData.append('songs', JSON.stringify(playlist.songs));
+
+    // On n'ajoute le fichier que s'il existe
+    if (coverFile) {
+      formData.append('cover', coverFile);
+    }
+
+    return this.http.post<Playlist>(this.apiUrl, formData);
+  }
+
+  updateCover(id: string, coverFile: File | null): Observable<Playlist> {
+    const formData = new FormData();
+    if (coverFile) {
+      // Nouvelle image -> on l'envoie
+      formData.append('cover', coverFile);
+    }
+    // Si coverFile est null, le backend met coverImage à null (gradient)
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/cover`, formData);
+  }
+
+  rename(id: string, name: string): Observable<Playlist> {
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/rename`, { name });
   }
 
   // DELETE — créateur uniquement
@@ -71,5 +95,10 @@ export class PlaylistService {
   addSongs(id: string, songs: { title: string; artist: string }[]): Observable<Playlist> {
     return this.http.patch<Playlist>(`${this.apiUrl}/${id}/songs`, { songs }, {
     });
+  }
+
+  // DELETE — supprimer un morceau spécifique
+  removeSong(id: string, songIndex: number): Observable<Playlist> {
+    return this.http.delete<Playlist>(`${this.apiUrl}/${id}/songs/${songIndex}`);
   }
 }

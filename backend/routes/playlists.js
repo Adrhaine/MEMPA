@@ -2,88 +2,112 @@ const express  = require('express');
 const router   = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Playlists = require('../models/Playlist');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
+// Configuration Cloudinary avec les variables d'environnement
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// On dit à multer de stocker directement sur Cloudinary
+// au lieu du disque local
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req, file) => {
+        return {
+            folder: 'mempa/covers',
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+            transformation: [{ width: 500, height: 500, crop: 'fill' }]
+        };
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo max
+});
+
+// Fonction utilitaire durée aléatoire
 function getRandomDuration() {
     const minSeconds = 90;
     const maxSeconds = 180;
     const totalSeconds = Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
-
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-
-    // padStart permet d'afficher "2:05" au lieu de "2:5"
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Fonction pour supprimer une image sur Cloudinary
+// public_id est l'identifiant unique de l'image sur Cloudinary
+async function deleteCloudinaryImage(coverImage) {
+    if (!coverImage) return;
+    try {
+        // L'URL Cloudinary contient le public_id dans le chemin
+        // Ex: https://res.cloudinary.com/moncloud/image/upload/v123/mempa/covers/abc123.jpg
+        // On extrait "mempa/covers/abc123" (sans l'extension)
+        const urlParts = coverImage.split('/');
+        const filename = urlParts[urlParts.length - 1].split('.')[0];
+        const publicId = `mempa/covers/${filename}`;
+        await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+        // On log l'erreur mais on ne bloque pas la requête
+        console.error('Erreur suppression Cloudinary:', err);
+    }
 }
 
 // GET — toutes les playlists avec tri et/ou filtre
 router.get('/', async (req, res) => {
     try {
         const { sortBy, order, search } = req.query;
-        // req.query récupère les paramètres dans l'URL
 
-        // Pagination — page commence à 1, limit = nb de résultats par page
         const page  = parseInt(req.query.page)  || 1;
         const limit = parseInt(req.query.limit) || 8;
-        const skip  = (page - 1) * limit; // ex: page 2 → on saute les 8 premiers
+        const skip  = (page - 1) * limit;
 
-        // Construction du filtre de recherche full-text
         let filter = {};
         const conditions = [];
         if (search) {
             conditions.push({ name: { $regex: search, $options: 'i' } });
         }
-        // Filtre par styles cochés (styles est une liste séparée par des virgules)
-        // ex: ?styles=Rock,Jazz
         if (req.query.styles) {
             const stylesArray = req.query.styles.split(',');
-            // $in = "le style est dans ce tableau"
             conditions.push({ style: { $in: stylesArray } });
         }
-
-        // Si on a des conditions, on les combine avec $and
         if (conditions.length > 0) {
             filter = { $and: conditions };
         }
 
-        // Construction du tri
         let sortOptions = {};
         if (sortBy) {
-            // 1 = croissant, -1 = décroissant
             sortOptions[sortBy] = order === 'desc' ? -1 : 1;
         }
 
-        // On fait deux requêtes en parallèle :
-        // 1. les playlists de la page courante
-        // 2. le nombre total (pour calculer le nombre de pages)
         const [playlists, total] = await Promise.all([
             Playlists.find(filter).sort(sortOptions).skip(skip).limit(limit),
             Playlists.countDocuments(filter)
         ]);
 
-        res.json({
-            playlists,
-            total,
-            page,
-            totalPages: Math.ceil(total / limit)
-        });
-
+        res.json({ playlists, total, page, totalPages: Math.ceil(total / limit) });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// GET — liste des styles distincts présents
+// GET — styles distincts
 router.get('/styles', async (req, res) => {
     try {
-        // distinct() retourne un tableau des valeurs uniques d'un champ
         const styles = await Playlists.distinct('style');
-        res.json(styles.sort()); // on trie alphabétiquement
+        res.json(styles.sort());
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// GET — playlists créées par l'utilisateur connecté
+// GET — playlists de l'utilisateur connecté
 router.get('/my', authMiddleware, async (req, res) => {
     try {
         const playlists = await Playlists.find({ createdBy: req.user.userId })
@@ -94,7 +118,7 @@ router.get('/my', authMiddleware, async (req, res) => {
     }
 });
 
-// GET — playlists likées par l'utilisateur connecté
+// GET — playlists likées
 router.get('/liked', authMiddleware, async (req, res) => {
     try {
         const playlists = await Playlists.find({ likes: req.user.userId })
@@ -112,34 +136,44 @@ router.get('/:id', async (req, res) => {
             req.params.id,
             { $inc: { clicks: 1 } },
             { returnDocument: 'after' }
-
         );
-        if (!playlist) return res.status(404).json({ message: 'Playlists non trouvée' });
+        if (!playlist) return res.status(404).json({ message: 'Playlist non trouvée' });
         res.json(playlist);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// POST — créer une playlist (protégée, faut être connecté)
-router.post('/', authMiddleware, async (req, res) => {
+// POST — créer une playlist avec pochette optionnelle
+router.post('/', authMiddleware, upload.single('cover'), async (req, res) => {
     try {
-        const playlistData = { ...req.body };
+        const { name, creator, style, songs } = req.body;
+        const parsedSongs = songs ? JSON.parse(songs) : [];
 
-        if (!playlistData.songs || !Array.isArray(playlistData.songs) || playlistData.songs.length === 0) {
+        if (!parsedSongs || parsedSongs.length === 0) {
             return res.status(400).json({
                 message: 'Une playlist doit obligatoirement contenir au moins une musique.'
             });
         }
-        playlistData.songs = playlistData.songs.map(song => ({
+
+        const songsWithDuration = parsedSongs.map(song => ({
             ...song,
             duration: getRandomDuration()
         }));
 
+        // Cloudinary retourne l'URL complète directement dans req.file.path
+        const coverImage = req.file ? req.file.path : null;
+
         const playlist = new Playlists({
-            ...playlistData,
-            createdBy: req.user.userId // on associe le créateur automatiquement
+            name,
+            creator,
+            style,
+            songs: songsWithDuration,
+            contributors: [],
+            coverImage,
+            createdBy: req.user.userId
         });
+
         const saved = await playlist.save();
         res.status(201).json(saved);
     } catch (err) {
@@ -147,7 +181,67 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 });
 
-// PATCH — ajouter un ou plusieurs morceaux (protégée, tout utilisateur connecté)
+// PATCH — modifier la pochette
+router.patch('/:id/cover', authMiddleware, upload.single('cover'), async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        // On vérifie que c'est bien le créateur OU un admin
+        if (playlist.createdBy.toString() !== req.user.userId && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Action réservée au créateur ou à l\'administrateur' });
+        }
+
+        // Supprime l'ancienne image sur Cloudinary avant d'en mettre une nouvelle
+        await deleteCloudinaryImage(playlist.coverImage);
+
+        const coverImage = req.file ? req.file.path : null;
+
+        const updated = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            { coverImage },
+            { returnDocument: 'after' }
+        );
+
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// PATCH — renommer une playlist (créateur uniquement)
+router.patch('/:id/rename', authMiddleware, async (req, res) => {
+    try {
+        const { name } = req.body;
+
+        if (!name || name.trim() === '') {
+            return res.status(400).json({ message: 'Le nom ne peut pas être vide' });
+        }
+
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) {
+            return res.status(404).json({ message: 'Playlist non trouvée' });
+        }
+
+        if (playlist.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Action réservée au créateur' });
+        }
+
+        const updated = await Playlists.findByIdAndUpdate(
+            req.params.id,
+            { name: name.trim() },
+            { returnDocument: 'after' }
+        );
+
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// PATCH — ajouter des morceaux (protégée, tout utilisateur connecté)
 router.patch('/:id/songs', authMiddleware, async (req, res) => {
     try {
         const { songs } = req.body;
@@ -156,26 +250,21 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'Aucun morceau fourni' });
         }
 
-        // On récupère la playlist pour vérifier le créateur
         const playlist = await Playlists.findById(req.params.id).exec();
         if (!playlist) {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
 
-        // On boucle sur tous les morceaux reçus pour leur ajouter une durée aléatoire
         const songsWithDuration = songs.map(song => ({
             ...song,
             duration: getRandomDuration()
         }));
 
-        // Construction de l'update avec les morceaux modifiés
         const update = {
             $push: { songs: { $each: songsWithDuration } }
         };
 
-        // On ajoute aux contributeurs seulement si ce n'est pas le créateur
         if (playlist.creator !== req.user.username) {
-            //On utilise le addToSet pour pas faire de doublon
             update.$addToSet = { contributors: req.user.username };
         }
 
@@ -186,7 +275,6 @@ router.patch('/:id/songs', authMiddleware, async (req, res) => {
         );
 
         res.json(updatedPlaylist);
-
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -200,13 +288,12 @@ router.post('/:id/like', authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
 
-        // On vérifie si l'utilisateur a déjà liké
         const userId = req.user.userId;
         const alreadyLiked = playlist.likes.some(id => id.toString() === userId);
 
         const update = alreadyLiked
-            ? { $pull:     { likes: userId } }  // déjà liké → on retire
-            : { $addToSet: { likes: userId } };  // pas encore → on ajoute
+            ? { $pull:     { likes: userId } }
+            : { $addToSet: { likes: userId } };
 
         const updated = await Playlists.findByIdAndUpdate(
             req.params.id,
@@ -224,7 +311,6 @@ router.post('/:id/like', authMiddleware, async (req, res) => {
     }
 });
 
-
 // DELETE — supprimer une playlist (protégée, créateur uniquement)
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
@@ -233,20 +319,44 @@ router.delete('/:id', authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'Playlist non trouvée' });
         }
 
-        // On vérifie que l'utilisateur connecté est bien le créateur
         if (playlist.createdBy.toString() !== req.user.userId) {
             return res.status(403).json({ message: 'Vous n\'êtes pas autorisé à supprimer cette playlist' });
         }
 
+        // Supprime aussi l'image sur Cloudinary
+        await deleteCloudinaryImage(playlist.coverImage);
         await Playlists.findByIdAndDelete(req.params.id);
         res.json({ message: 'Playlist supprimée avec succès' });
-
-
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
+// DELETE — supprimer un morceau précis d'une playlist (créateur ou admin)
+router.delete('/:id/songs/:songIndex', authMiddleware, async (req, res) => {
+    try {
+        const playlist = await Playlists.findById(req.params.id);
+        if (!playlist) return res.status(404).json({ message: 'Playlist non trouvée' });
 
+        // Vérification des droits (Créateur ou Admin)
+        if (playlist.createdBy.toString() !== req.user.userId && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Action non autorisée' });
+        }
+
+        const index = parseInt(req.params.songIndex);
+        if (isNaN(index) || index < 0 || index >= playlist.songs.length) {
+            return res.status(400).json({ message: 'Index du morceau invalide' });
+        }
+
+        // On retire 1 élément à la position 'index'
+        playlist.songs.splice(index, 1);
+
+        // On sauvegarde le document mis à jour
+        const updatedPlaylist = await playlist.save();
+        res.json(updatedPlaylist);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 module.exports = router;
