@@ -29,15 +29,47 @@ export class AuthService {
     );
   }
 
+  // PATCH — modifier le pseudo
+  updateUsername(username: string): Observable<{ user: any }> {
+    return this.http.patch<{ user: any }>(`${this.apiUrl}/profile`, { username }).pipe(
+      tap(response => {
+        // Met à jour le localStorage avec le nouveau pseudo
+        localStorage.setItem('user', JSON.stringify(response.user));
+      })
+    );
+  }
+
   // Déconnexion — on supprime les données du localStorage
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
-  // Vérifie si l'utilisateur est connecté
+  // Vérifie si l'utilisateur est connecté ET que son token n'est pas expiré
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    try {
+      // Un token JWT est composé de 3 parties séparées par des points
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // exp est en secondes, Date.now() est en millisecondes donc on multiplie par 1000
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      // Si le token est malformé, on considère l'utilisateur déconnecté
+      return false;
+    }
+  }
+
+  isAdmin(): boolean {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // On vérifie à la fois que le token est valide ET que le rôle est admin
+      return payload.exp * 1000 > Date.now() && payload.role === 'admin';
+    } catch {
+      return false;
+    }
   }
 
   // Récupère le token pour l'envoyer dans les requêtes protégées

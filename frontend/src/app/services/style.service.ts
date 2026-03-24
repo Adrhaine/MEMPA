@@ -1,20 +1,36 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Style } from '../models/playlist.model';
 
-// Ce service est partagé entre tous les composants qui ont besoin
-// de convertir un style musical en classe CSS de gradient
+export type { Style };
+
 @Injectable({ providedIn: 'root' })
 export class StyleService {
 
-  getGradientClass(style: string): string {
-    const s = style.toLowerCase().trim();
+  private apiUrl = 'http://localhost:3000/api/styles';
 
-    if (s.includes('electro') || s.includes('electronic')) return 'gradient-electro';
-    if (s.includes('rock'))                                  return 'gradient-rock';
-    if (s.includes('jazz'))                                  return 'gradient-jazz';
-    if (s.includes('classique') || s.includes('classical')) return 'gradient-classique';
-    if (s.includes('pop'))                                   return 'gradient-pop';
-    if (s.includes('hip-hop') || s.includes('hip hop') || s.includes('rap')) return 'gradient-hiphop';
+  // Cache local des styles pour éviter des appels répétés
+  private stylesCache: Style[] = [];
 
-    return 'gradient-default';
+  constructor(private http: HttpClient) {}
+
+  getAll(): Observable<Style[]> {
+    return this.http.get<Style[]>(this.apiUrl);
+  }
+
+  // Stocke les styles en cache dès qu'on les charge
+  setCache(styles: Style[]): void {
+    this.stylesCache = styles;
+  }
+
+  getGradientStyle(styleName: string): { [key: string]: string } {
+    const found = this.stylesCache.find(
+      s => s.name.toLowerCase() === styleName.toLowerCase()
+    );
+    if (found) {
+      return { background: `linear-gradient(135deg, ${found.color1}, ${found.color2})` };
+    }
+    return { background: 'linear-gradient(135deg, #3d2d1e, #1a1410)' };
   }
 }

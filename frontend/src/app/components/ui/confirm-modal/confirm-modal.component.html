@@ -1,0 +1,22 @@
+@if (payload) {
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+       (click)="onClose()">
+    <div class="bg-mempa-dark border border-mempa-darker rounded-xl p-8 max-w-md w-full shadow-2xl"
+         (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-bold mb-3 font-serif">
+        Confirmation requise
+      </h3>
+      <p class="text-mempa-cream-dim text-sm mb-6 leading-relaxed">{{ payload.message }}</p>
+      <div class="flex gap-3 justify-end">
+        <button (click)="onClose()"
+                class="px-5 py-2 border border-mempa-darker text-mempa-cream-dim text-sm rounded-lg hover:border-mempa-cream hover:text-mempa-cream transition-all">
+          Annuler
+        </button>
+        <button (click)="onConfirm()"
+                class="px-5 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-500 transition-all font-medium">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+}

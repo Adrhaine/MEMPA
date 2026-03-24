@@ -1,23 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { PlaylistDetailComponent } from './playlist-detail.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
-import { PlaylistDetail } from './playlist-detail.component';
-
-describe('PlaylistDetail', () => {
-  let component: PlaylistDetail;
-  let fixture: ComponentFixture<PlaylistDetail>;
+describe('PlaylistDetailComponent', () => {
+  let component: PlaylistDetailComponent;
+  let fixture: ComponentFixture<PlaylistDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlaylistDetail]
+      imports: [
+        PlaylistDetailComponent,
+        HttpClientTestingModule,
+        RouterTestingModule
+      ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlaylistDetail);
+    fixture = TestBed.createComponent(PlaylistDetailComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('devrait créer le composant', () => {
     expect(component).toBeTruthy();
   });
 });

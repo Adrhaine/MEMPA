@@ -1,0 +1,152 @@
+<div class="page-animate min-h-screen bg-mempa-black text-mempa-cream">
+
+  <!-- NavbarComponent -->
+  <app-navbar [showBackButton]="true"></app-navbar>
+
+  <div class="max-w-4xl mx-auto px-8 py-10">
+
+    <!-- Header profil -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10">
+
+      <!-- Avatar -->
+      <div class="w-20 h-20 bg-mempa-orange rounded-full flex items-center justify-center flex-shrink-0">
+        <span class="text-mempa-black font-bold text-3xl">{{ username.charAt(0).toUpperCase() }}</span>
+      </div>
+
+      <!-- Infos -->
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-1">
+          @if (!showEditForm) {
+            <h1 class="text-3xl font-bold font-serif">
+              {{ username }}
+            </h1>
+            <button
+              (click)="showEditForm = true; newUsername = username"
+              class="w-7 h-7 flex items-center justify-center rounded-full bg-mempa-dark hover:bg-mempa-darker text-mempa-cream-dimmer hover:text-mempa-orange transition-all"
+              title="Modifier le pseudo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+          } @else {
+            <!-- Formulaire modification pseudo -->
+            <div class="flex items-center gap-2">
+              <input
+                [(ngModel)]="newUsername"
+                class="bg-[#241a10] border border-mempa-darker text-mempa-cream px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-mempa-orange"
+              />
+              <button
+                (click)="onUpdateUsername()"
+                class="px-4 py-2 bg-mempa-orange text-mempa-black font-semibold text-xs rounded-full hover:bg-[#f0d080] transition-all">
+                Valider
+              </button>
+              <button
+                (click)="showEditForm = false"
+                class="px-4 py-2 text-xs text-mempa-cream-dimmer hover:text-mempa-cream transition-colors">
+                Annuler
+              </button>
+            </div>
+          }
+        </div>
+        <p class="text-mempa-cream-dimmer text-sm">{{ email }}</p>
+        <div class="flex gap-4 mt-2 text-sm text-mempa-cream-dim">
+          <span><span class="font-semibold text-mempa-cream">{{ myPlaylists.length }}</span> playlists créées</span>
+          <span><span class="font-semibold text-mempa-cream">{{ likedPlaylists.length }}</span> playlists likées</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="flex gap-1 mb-8 border-b border-mempa-darker">
+      <button
+        (click)="setTab('my')"
+        class="px-5 py-3 text-sm font-medium transition-all"
+        [class]="activeTab === 'my'
+          ? 'text-mempa-orange border-b-2 border-mempa-orange'
+          : 'text-mempa-cream-dimmer hover:text-mempa-cream-dim'">
+        Mes playlists
+      </button>
+      <button
+        (click)="setTab('liked')"
+        class="px-5 py-3 text-sm font-medium transition-all"
+        [class]="activeTab === 'liked'
+          ? 'text-mempa-orange border-b-2 border-mempa-orange'
+          : 'text-mempa-cream-dimmer hover:text-mempa-cream-dim'">
+        ❤️ Mes likes
+      </button>
+    </div>
+
+    <!-- Contenu onglet Mes playlists -->
+    @if (activeTab === 'my') {
+      @if (myPlaylists.length === 0) {
+        <div class="text-center py-20 text-mempa-cream-dimmer">
+          <p class="text-5xl mb-4">🎵</p>
+          <p class="text-sm tracking-widest uppercase">Aucune playlist créée</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          @for (playlist of myPlaylists; track playlist._id) {
+            <div
+              (click)="goToDetail(playlist._id!)"
+              class="group bg-mempa-dark p-4 cursor-pointer hover:bg-mempa-darker transition-all duration-300 rounded-lg">
+              <div
+                [ngStyle]="getGradientStyle(playlist.style)"
+                class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
+              </div>
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-serif">
+                {{ playlist.name }}
+              </h2>
+              <p class="text-mempa-cream-dim text-xs mb-2">
+                <span class="text-mempa-orange/80">{{ playlist.style }}</span>
+              </p>
+              <div class="flex items-center gap-2 text-[11px] text-mempa-cream-dimmer">
+                <span>{{ playlist.songs.length }} morceaux</span>
+                <span>·</span>
+                <span>{{ playlist.clicks }} vues</span>
+                <span>·</span>
+                <span>❤️ {{ playlist.likes?.length ?? 0 }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Contenu onglet Mes likes -->
+    @if (activeTab === 'liked') {
+      @if (likedPlaylists.length === 0) {
+        <div class="text-center py-20 text-mempa-cream-dimmer">
+          <p class="text-5xl mb-4">🤍</p>
+          <p class="text-sm tracking-widest uppercase">Aucune playlist likée</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          @for (playlist of likedPlaylists; track playlist._id) {
+            <div
+              (click)="goToDetail(playlist._id!)"
+              class="group bg-mempa-dark p-4 cursor-pointer hover:bg-mempa-darker transition-all duration-300 rounded-lg">
+              <div
+                [ngStyle]="getGradientStyle(playlist.style)"
+                class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
+              </div>
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-serif">
+                {{ playlist.name }}
+              </h2>
+              <p class="text-mempa-cream-dim text-xs mb-2">
+                <span class="text-mempa-orange/80">{{ playlist.style }}</span> · {{ playlist.creator }}
+              </p>
+              <div class="flex items-center gap-2 text-[11px] text-mempa-cream-dimmer">
+                <span>{{ playlist.songs.length }} morceaux</span>
+                <span>·</span>
+                <span>{{ playlist.clicks }} vues</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</div>
