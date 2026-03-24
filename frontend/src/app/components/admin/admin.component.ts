@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { ViewChild, ElementRef } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import {ConfirmService} from '../../services/confirm.service';
+import {NavbarComponent} from '../ui/navbar/navbar.component';
 
 
 Chart.register(...registerables);
@@ -20,7 +21,7 @@ type PlaylistSortColumn = 'clicks' | 'songs' | null;
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })

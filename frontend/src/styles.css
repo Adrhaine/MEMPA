@@ -4,24 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --mempa-orange: #e8c46c;
-  --mempa-orange-hover: #f0d080;
-  --mempa-black: #1a1410;
-  --mempa-dark: #2a1f15;
-  --mempa-darker: #3d2d1e;
-  --mempa-darkest: #241a10;
-  --mempa-cream: #f5e6d3;
-  --mempa-cream-dim: #a89078;
-  --mempa-cream-dimmer: #7a6050;
-}
-
-body {
-  background-color: #1a1410;
-  color: #f5e6d3;
-  font-family: 'DM Sans', sans-serif;
-}
-
 h1, h2, h3 {
   font-family: 'Playfair Display', serif;
 }
@@ -110,8 +92,4 @@ h1, h2, h3 {
 
 .page-animate {
   animation: fadeSlideIn 400ms ease-out;
-}
-
-* {
-  cursor: none !important;
 }

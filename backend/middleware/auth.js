@@ -17,9 +17,12 @@ const authMiddleware = (req, res, next) => {
         // Vérifie et décode le token avec notre clé secrète
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Ajoute les infos de l'utilisateur à la requête
-        // Comme ça les routes suivantes savent qui fait la requête
-        req.user = decoded;
+        // On assigne explicitement les valeurs pour être sûr que "userId" et "role" existent bien
+        req.user = {
+            userId: decoded.userId || decoded.id,
+            role: decoded.role,
+            username: decoded.username
+        };
 
         next();
     } catch (err) {

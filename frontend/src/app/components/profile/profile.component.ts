@@ -7,11 +7,12 @@ import { PlaylistService } from '../../services/playlist.service';
 import { StyleService } from '../../services/style.service';
 import { NotificationService } from '../../services/notification.service';
 import { Playlist } from '../../models/playlist.model';
+import {NavbarComponent} from '../ui/navbar/navbar.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })

@@ -1,49 +1,26 @@
-<div class="page-animate min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+<div class="page-animate min-h-screen bg-mempa-black text-mempa-cream">
 
-  <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <button (click)="goHome()" class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors text-sm">
-          ← Retour
-        </button>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center">
-            <span class="text-[#1a1410] font-bold text-xs">M</span>
-          </div>
-          <span class="font-bold text-sm" style="font-family: 'Playfair Display', serif">MEMPA</span>
-          <span class="ml-2 px-2 py-0.5 bg-[#e8c46c]/20 text-[#e8c46c] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#e8c46c]/30">
-            Admin
-          </span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-[#a89078] text-sm hidden sm:block">{{ getUsername() }}</span>
-        <button (click)="onLogout()" class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
-          Déconnexion
-        </button>
-      </div>
-    </div>
-  </nav>
+  <!-- NavbarComponent -->
+  <app-navbar [showBackButton]="true" badgeText="Admin"></app-navbar>
 
   <!-- Contenu principal -->
   <div class="max-w-7xl mx-auto px-8 py-8">
 
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-4xl font-bold mb-1" style="font-family: 'Playfair Display', serif">Dashboard Admin</h1>
-      <p class="text-[#a89078] text-sm">Gestion globale de l'application MEMPA</p>
+      <h1 class="text-4xl font-bold mb-1 font-serif">Dashboard Admin</h1>
+      <p class="text-mempa-cream-dim text-sm">Gestion globale de l'application MEMPA</p>
     </div>
 
     <!-- Onglets -->
-    <div class="flex gap-1 mb-8 border-b border-[#3d2d1e]">
+    <div class="flex gap-1 mb-8 border-b border-mempa-darker">
       <button
         *ngFor="let tab of tabs"
         (click)="setTab(tab.id)"
         [class]="'px-5 py-3 text-sm font-medium transition-all rounded-t-lg -mb-px ' +
           (activeTab === tab.id
-            ? 'text-[#e8c46c] border border-b-[#2a1f15] border-[#3d2d1e] bg-[#2a1f15]'
-            : 'text-[#a89078] hover:text-[#f5e6d3]')">
+            ? 'text-mempa-orange border border-b-mempa-dark border-mempa-darker bg-mempa-dark'
+            : 'text-mempa-cream-dim hover:text-mempa-cream')">
         {{ tab.label }}
       </button>
     </div>
@@ -51,7 +28,7 @@
     <!-- Spinner -->
     @if (isLoading) {
       <div class="flex items-center justify-center py-24">
-        <div class="w-12 h-12 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin"></div>
+        <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
       </div>
     }
 
@@ -59,56 +36,56 @@
     @if (activeTab === 'stats' && !isLoading && stats) {
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Utilisateurs</p>
-          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalUsers }}</p>
+        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Utilisateurs</p>
+          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalUsers }}</p>
         </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Playlists</p>
-          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalPlaylists }}</p>
+        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Playlists</p>
+          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalPlaylists }}</p>
         </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Morceaux</p>
-          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalSongs }}</p>
+        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Morceaux</p>
+          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalSongs }}</p>
         </div>
-        <div class="bg-[#2a1f15] rounded-lg p-5 border border-[#3d2d1e]">
-          <p class="text-[#a89078] text-xs uppercase tracking-widest mb-2">Total vues</p>
-          <p class="text-3xl font-bold text-[#e8c46c]">{{ stats.keyMetrics.totalViews }}</p>
+        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Total vues</p>
+          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalViews }}</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col lg:col-span-2">
-          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Créations (30 jours)</h2>
+        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col lg:col-span-2">
+          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Créations (30 jours)</h2>
           <div class="relative h-64 w-full">
             <canvas #timelineChart></canvas>
           </div>
         </div>
 
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Répartition des styles</h2>
+        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Répartition des styles</h2>
           <div class="relative h-64 w-full">
             <canvas #styleChart></canvas>
           </div>
         </div>
 
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Artistes</h2>
+        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Artistes</h2>
           <div class="relative h-64 w-full">
             <canvas #artistsChart></canvas>
           </div>
         </div>
 
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Playlists (Vues)</h2>
+        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Vues)</h2>
           <div class="relative h-64 w-full">
             <canvas #topPlaylistsChart></canvas>
           </div>
         </div>
 
-        <div class="bg-[#2a1f15] rounded-lg p-6 border border-[#3d2d1e] flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-[#f5e6d3]" style="font-family: 'Playfair Display', serif">Top 5 Playlists (Likes)</h2>
+        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Likes)</h2>
           <div class="relative h-64 w-full">
             <canvas #topLikedChart></canvas>
           </div>
@@ -123,16 +100,16 @@
       <div class="flex items-center gap-4 mb-6">
         <div class="relative flex-1 max-w-sm">
           <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher par nom ou email…"
-                 class="w-full bg-[#2a1f15] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+                 class="w-full bg-mempa-dark border border-mempa-darker rounded-lg px-4 py-2.5 text-sm text-mempa-cream placeholder-mempa-cream-dimmer focus:outline-none focus:border-mempa-orange transition-colors" />
         </div>
-        <span class="text-[#a89078] text-sm shrink-0">{{ filteredUsers.length }} utilisateur(s)</span>
+        <span class="text-mempa-cream-dim text-sm shrink-0">{{ filteredUsers.length }} utilisateur(s)</span>
       </div>
 
       @if (filteredUsers.length > 0) {
-        <div class="bg-[#2a1f15] rounded-lg border border-[#3d2d1e] overflow-hidden">
+        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden">
           <table class="w-full text-sm">
             <thead>
-            <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
+            <tr class="border-b border-mempa-darker text-mempa-cream-dim text-xs uppercase tracking-wider">
               <th class="text-left px-6 py-4">Utilisateur</th>
               <th class="text-left px-6 py-4 hidden md:table-cell">Email</th>
               <th class="text-left px-6 py-4">Rôle</th>
@@ -142,7 +119,7 @@
             </thead>
             <tbody>
               @for (user of filteredUsers; track user._id) {
-                <tr class="border-b border-[#3d2d1e]/50 hover:bg-[#1a1410]/50 transition-colors">
+                <tr class="border-b border-mempa-darker/50 hover:bg-mempa-black/50 transition-colors">
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
@@ -153,30 +130,30 @@
                       <span class="font-medium">{{ user.username }}</span>
                     </div>
                   </td>
-                  <td class="px-6 py-4 text-[#a89078] hidden md:table-cell">{{ user.email }}</td>
+                  <td class="px-6 py-4 text-mempa-cream-dim hidden md:table-cell">{{ user.email }}</td>
                   <td class="px-6 py-4">
                     <span [class]="'px-2.5 py-1 rounded-full text-xs font-semibold ' +
                       (user.role === 'admin'
-                        ? 'bg-[#e8c46c]/20 text-[#e8c46c] border border-[#e8c46c]/30'
-                        : 'bg-[#3d2d1e] text-[#a89078]')">
+                        ? 'bg-mempa-orange/20 text-mempa-orange border border-mempa-orange/30'
+                        : 'bg-mempa-darker text-mempa-cream-dim')">
                       {{ user.role }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-[#a89078] hidden lg:table-cell">{{ formatDate(user.createdAt) }}</td>
+                  <td class="px-6 py-4 text-mempa-cream-dim hidden lg:table-cell">{{ formatDate(user.createdAt) }}</td>
                   <td class="px-6 py-4">
                     <div class="flex items-center justify-end gap-2">
                       @if (user._id !== getCurrentUserId()) {
                         <button (click)="toggleUserRole(user)"
                                 [title]="user.role === 'admin' ? 'Rétrograder en user' : 'Promouvoir admin'"
-                                class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-[#e8c46c] hover:text-[#e8c46c] transition-all">
+                                class="px-3 py-1.5 text-xs rounded-lg border border-mempa-darker text-mempa-cream-dim hover:border-mempa-orange hover:text-mempa-orange transition-all">
                           {{ user.role === 'admin' ? '↓ User' : '↑ Admin' }}
                         </button>
                         <button (click)="confirmDeleteUser(user)"
-                                class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-red-500 hover:text-red-400 transition-all">
+                                class="px-3 py-1.5 text-xs rounded-lg border border-mempa-darker text-mempa-cream-dim hover:border-red-500 hover:text-red-400 transition-all">
                           Supprimer
                         </button>
                       } @else {
-                        <span class="text-[#7a6050] text-xs italic">Vous</span>
+                        <span class="text-mempa-cream-dimmer text-xs italic">Vous</span>
                       }
                     </div>
                   </td>
@@ -186,7 +163,7 @@
           </table>
         </div>
       } @else {
-        <div class="text-center py-16 text-[#7a6050]">
+        <div class="text-center py-16 text-mempa-cream-dimmer">
           <p class="text-4xl mb-4">👥</p>
           <p>Aucun utilisateur trouvé</p>
         </div>
@@ -197,43 +174,43 @@
     @if (activeTab === 'styles' && !isLoading) {
 
       <div class="flex items-center justify-between mb-6">
-        <span class="text-[#a89078] text-sm">{{ styles.length }} style(s)</span>
+        <span class="text-mempa-cream-dim text-sm">{{ styles.length }} style(s)</span>
         <button (click)="showAddStyleForm = !showAddStyleForm"
-                class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs rounded-full hover:bg-[#f0d080] transition-all">
+                class="px-4 py-2 bg-mempa-orange text-mempa-black font-semibold text-xs rounded-full hover:bg-[#f0d080] transition-all">
           {{ showAddStyleForm ? '✕ Annuler' : '+ Ajouter un style' }}
         </button>
       </div>
 
       @if (showAddStyleForm) {
-        <div class="bg-[#2a1f15] rounded-lg border border-[#e8c46c]/30 p-6 mb-6">
-          <h3 class="text-base font-bold mb-4" style="font-family: 'Playfair Display', serif">Nouveau style musical</h3>
+        <div class="bg-mempa-dark rounded-lg border border-mempa-orange/30 p-6 mb-6">
+          <h3 class="text-base font-bold mb-4 font-serif">Nouveau style musical</h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Nom du style *</label>
+              <label class="block text-xs text-mempa-cream-dim uppercase tracking-wider mb-2">Nom du style *</label>
               <input type="text" [(ngModel)]="newStyleName" placeholder="ex: Jazz, Rock, Électro…"
-                     class="w-full bg-[#1a1410] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+                     class="w-full bg-mempa-black border border-mempa-darker rounded-lg px-4 py-2.5 text-sm text-mempa-cream placeholder-mempa-cream-dimmer focus:outline-none focus:border-mempa-orange transition-colors" />
             </div>
             <div>
-              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Couleur principale</label>
+              <label class="block text-xs text-mempa-cream-dim uppercase tracking-wider mb-2">Couleur principale</label>
               <div class="flex items-center gap-3">
                 <input type="color" [(ngModel)]="newStyleColor1" class="w-10 h-10 rounded cursor-pointer border-0 bg-transparent" />
-                <span class="text-[#a89078] text-xs font-mono">{{ newStyleColor1 }}</span>
+                <span class="text-mempa-cream-dim text-xs font-mono">{{ newStyleColor1 }}</span>
               </div>
             </div>
             <div>
-              <label class="block text-xs text-[#a89078] uppercase tracking-wider mb-2">Couleur secondaire</label>
+              <label class="block text-xs text-mempa-cream-dim uppercase tracking-wider mb-2">Couleur secondaire</label>
               <div class="flex items-center gap-3">
                 <input type="color" [(ngModel)]="newStyleColor2" class="w-10 h-10 rounded cursor-pointer border-0 bg-transparent" />
-                <span class="text-[#a89078] text-xs font-mono">{{ newStyleColor2 }}</span>
+                <span class="text-mempa-cream-dim text-xs font-mono">{{ newStyleColor2 }}</span>
               </div>
             </div>
           </div>
           <div class="mt-4 flex items-center gap-4">
             <div class="w-24 h-8 rounded-lg" [style.background]="'linear-gradient(135deg, ' + newStyleColor1 + ', ' + newStyleColor2 + ')'"></div>
-            <span class="text-[#a89078] text-xs">Aperçu du gradient</span>
+            <span class="text-mempa-cream-dim text-xs">Aperçu du gradient</span>
           </div>
           <button (click)="submitAddStyle()"
-                  class="mt-4 px-6 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm rounded-lg hover:bg-[#f0d080] transition-all">
+                  class="mt-4 px-6 py-2 bg-mempa-orange text-mempa-black font-semibold text-sm rounded-lg hover:bg-[#f0d080] transition-all">
             Créer le style
           </button>
         </div>
@@ -245,14 +222,14 @@
 
             <!-- MODE ÉDITION : formulaire inline -->
             @if (editingStyleId === style._id) {
-              <div class="rounded-lg border border-[#e8c46c]/50 bg-[#2a1f15] p-4 col-span-2 sm:col-span-1">
+              <div class="rounded-lg border border-mempa-orange/50 bg-mempa-dark p-4 col-span-2 sm:col-span-1">
                 <!-- Aperçu en temps réel -->
                 <div class="h-12 rounded-lg mb-3 transition-all"
                      [style.background]="'linear-gradient(135deg, ' + editStyleColor1 + ', ' + editStyleColor2 + ')'">
                 </div>
 
                 <input type="text" [(ngModel)]="editStyleName"
-                       class="w-full bg-[#1a1410] border border-[#3d2d1e] rounded-lg px-3 py-1.5 text-sm text-[#f5e6d3] focus:outline-none focus:border-[#e8c46c] mb-3 transition-colors"
+                       class="w-full bg-mempa-black border border-mempa-darker rounded-lg px-3 py-1.5 text-sm text-mempa-cream focus:outline-none focus:border-mempa-orange mb-3 transition-colors"
                        placeholder="Nom du style" />
 
                 <div class="flex items-center gap-2 mb-3">
@@ -260,18 +237,18 @@
                          class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
                   <input type="color" [(ngModel)]="editStyleColor2"
                          class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
-                  <span class="text-[#7a6050] text-xs font-mono flex-1 truncate">
+                  <span class="text-mempa-cream-dimmer text-xs font-mono flex-1 truncate">
               {{ editStyleColor1 }} / {{ editStyleColor2 }}
             </span>
                 </div>
 
                 <div class="flex gap-2">
                   <button (click)="submitEditStyle()"
-                          class="flex-1 px-3 py-1.5 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs rounded-lg hover:bg-[#f0d080] transition-all">
+                          class="flex-1 px-3 py-1.5 bg-mempa-orange text-mempa-black font-semibold text-xs rounded-lg hover:bg-[#f0d080] transition-all">
                     Sauvegarder
                   </button>
                   <button (click)="cancelEditStyle()"
-                          class="px-3 py-1.5 border border-[#3d2d1e] text-[#a89078] text-xs rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
+                          class="px-3 py-1.5 border border-mempa-darker text-mempa-cream-dim text-xs rounded-lg hover:border-mempa-cream hover:text-mempa-cream transition-all">
                     ✕
                   </button>
                 </div>
@@ -279,20 +256,20 @@
 
               <!-- MODE AFFICHAGE NORMAL -->
             } @else {
-              <div class="relative rounded-lg overflow-hidden border border-[#3d2d1e] hover:border-[#e8c46c]/50 transition-all">
+              <div class="relative rounded-lg overflow-hidden border border-mempa-darker hover:border-mempa-orange/50 transition-all">
                 <div class="h-20" [style.background]="getGradient(style)"></div>
-                <div class="bg-[#2a1f15] px-4 py-3 flex items-center justify-between">
+                <div class="bg-mempa-dark px-4 py-3 flex items-center justify-between">
                   <span class="font-medium text-sm truncate">{{ style.name }}</span>
                   <div class="flex items-center gap-2 ml-2 shrink-0">
                     <!-- Bouton édition (crayon) -->
                     <button (click)="startEditStyle(style)"
                             title="Modifier ce style"
-                            class="text-[#7a6050] hover:text-[#e8c46c] transition-colors text-xs">
+                            class="text-mempa-cream-dimmer hover:text-mempa-orange transition-colors text-xs">
                       ✎
                     </button>
                     <!-- Bouton suppression -->
                     <button (click)="confirmDeleteStyle(style)"
-                            class="text-[#7a6050] hover:text-red-400 transition-colors text-xs">
+                            class="text-mempa-cream-dimmer hover:text-red-400 transition-colors text-xs">
                       ✕
                     </button>
                   </div>
@@ -312,16 +289,16 @@
         <div class="relative flex-1 max-w-sm">
           <input type="text" [(ngModel)]="playlistSearch" (input)="onPlaylistSearch()"
                  placeholder="Rechercher par nom ou créateur…"
-                 class="w-full bg-[#2a1f15] border border-[#3d2d1e] rounded-lg px-4 py-2.5 text-sm text-[#f5e6d3] placeholder-[#7a6050] focus:outline-none focus:border-[#e8c46c] transition-colors" />
+                 class="w-full bg-mempa-dark border border-mempa-darker rounded-lg px-4 py-2.5 text-sm text-mempa-cream placeholder-mempa-cream-dimmer focus:outline-none focus:border-mempa-orange transition-colors" />
         </div>
-        <span class="text-[#a89078] text-sm shrink-0">{{ totalPlaylists }} playlist(s)</span>
+        <span class="text-mempa-cream-dim text-sm shrink-0">{{ totalPlaylists }} playlist(s)</span>
       </div>
 
       @if (playlists.length > 0) {
-        <div class="bg-[#2a1f15] rounded-lg border border-[#3d2d1e] overflow-hidden mb-6">
+        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden mb-6">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-[#3d2d1e] text-[#a89078] text-xs uppercase tracking-wider">
+              <tr class="border-b border-mempa-darker text-mempa-cream-dim text-xs uppercase tracking-wider">
                 <th class="text-left px-6 py-4">Nom</th>
                 <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
                 <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
@@ -330,8 +307,8 @@
                 <th class="text-right px-6 py-4 hidden sm:table-cell">
                   <button
                     (click)="onSortPlaylists('clicks')"
-                    [class]="'flex items-center gap-1 ml-auto hover:text-[#e8c46c] transition-colors ' +
-                    (playlistSortColumn === 'clicks' ? 'text-[#e8c46c]' : '')">
+                    [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' +
+                    (playlistSortColumn === 'clicks' ? 'text-mempa-orange' : '')">
                     Vues
                     <span class="text-xs">{{ getSortIcon('clicks') }}</span>
                   </button>
@@ -341,8 +318,8 @@
                 <th class="text-right px-6 py-4 hidden sm:table-cell">
                   <button
                     (click)="onSortPlaylists('songs')"
-                    [class]="'flex items-center gap-1 ml-auto hover:text-[#e8c46c] transition-colors ' +
-                    (playlistSortColumn === 'songs' ? 'text-[#e8c46c]' : '')">
+                    [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' +
+                    (playlistSortColumn === 'songs' ? 'text-mempa-orange' : '')">
                     Morceaux
                     <span class="text-xs">{{ getSortIcon('songs') }}</span>
                   </button>
@@ -353,17 +330,17 @@
             </thead>
             <tbody>
               @for (playlist of sortedPlaylists; track playlist._id) {
-                <tr class="border-b border-[#3d2d1e]/50 hover:bg-[#1a1410]/50 transition-colors">
+                <tr class="border-b border-mempa-darker/50 hover:bg-mempa-black/50 transition-colors">
                   <td class="px-6 py-4 font-medium max-w-[200px] truncate">{{ playlist.name }}</td>
-                  <td class="px-6 py-4 text-[#a89078] hidden md:table-cell">{{ playlist.creator }}</td>
+                  <td class="px-6 py-4 text-mempa-cream-dim hidden md:table-cell">{{ playlist.creator }}</td>
                   <td class="px-6 py-4 hidden lg:table-cell">
-                    <span class="px-2.5 py-1 bg-[#3d2d1e] rounded-full text-xs">{{ playlist.style }}</span>
+                    <span class="px-2.5 py-1 bg-mempa-darker rounded-full text-xs">{{ playlist.style }}</span>
                   </td>
-                  <td class="px-6 py-4 text-right text-[#a89078] hidden sm:table-cell">{{ playlist.clicks }}</td>
-                  <td class="px-6 py-4 text-right text-[#a89078] hidden sm:table-cell">{{ playlist.songs.length }}</td>
+                  <td class="px-6 py-4 text-right text-mempa-cream-dim hidden sm:table-cell">{{ playlist.clicks }}</td>
+                  <td class="px-6 py-4 text-right text-mempa-cream-dim hidden sm:table-cell">{{ playlist.songs.length }}</td>
                   <td class="px-6 py-4 text-right">
                     <button (click)="confirmDeletePlaylist(playlist)"
-                            class="px-3 py-1.5 text-xs rounded-lg border border-[#3d2d1e] text-[#a89078] hover:border-red-500 hover:text-red-400 transition-all">
+                            class="px-3 py-1.5 text-xs rounded-lg border border-mempa-darker text-mempa-cream-dim hover:border-red-500 hover:text-red-400 transition-all">
                       Supprimer
                     </button>
                   </td>
@@ -376,18 +353,18 @@
         @if (totalPages > 1) {
           <div class="flex items-center justify-center gap-2">
             <button (click)="loadPlaylists(currentPage - 1)" [disabled]="currentPage === 1"
-                    class="px-4 py-2 text-sm rounded-lg border border-[#3d2d1e] text-[#a89078] hover:text-[#f5e6d3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
               ← Précédent
             </button>
-            <span class="text-[#a89078] text-sm px-4">Page {{ currentPage }} / {{ totalPages }}</span>
+            <span class="text-mempa-cream-dim text-sm px-4">Page {{ currentPage }} / {{ totalPages }}</span>
             <button (click)="loadPlaylists(currentPage + 1)" [disabled]="currentPage === totalPages"
-                    class="px-4 py-2 text-sm rounded-lg border border-[#3d2d1e] text-[#a89078] hover:text-[#f5e6d3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
               Suivant →
             </button>
           </div>
         }
       } @else {
-        <div class="text-center py-16 text-[#7a6050]">
+        <div class="text-center py-16 text-mempa-cream-dimmer">
           <p class="text-4xl mb-4">🎶</p>
           <p>Aucune playlist trouvée</p>
         </div>

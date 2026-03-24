@@ -7,11 +7,12 @@ import { Playlist, Song } from '../../models/playlist.model';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { StyleService, Style } from '../../services/style.service';
+import {NavbarComponent} from '../ui/navbar/navbar.component';
 
 @Component({
   selector: 'app-create-playlist',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './create-playlist.component.html',
   styleUrl: './create-playlist.component.css'
 })
@@ -32,6 +33,8 @@ export class CreatePlaylistComponent implements OnInit {
   coverFile: File | null = null;
   // URL temporaire pour la prévisualisation dans le navigateur
   coverPreviewUrl: string | null = null;
+
+  isSubmitting: boolean = false;
 
   constructor(
     private playlistService: PlaylistService,
@@ -107,13 +110,18 @@ export class CreatePlaylistComponent implements OnInit {
       return;
     }
 
+    // On bloque le bouton pour éviter les doubles clics
+    this.isSubmitting = true;
+
     // On passe le fichier (ou null si aucun) au service
     this.playlistService.create(this.playlist, this.coverFile ?? undefined).subscribe({
       next: () => {
+        this.isSubmitting = false; // On débloque
         this.notificationService.success('Playlist créée avec succès !');
         this.router.navigate(['/']);
       },
       error: (err) => {
+        this.isSubmitting = false; // On débloque même en cas d'erreur
         this.notificationService.error(err.error?.message || 'Erreur lors de la création');
       }
     });

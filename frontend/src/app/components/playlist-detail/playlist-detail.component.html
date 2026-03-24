@@ -1,36 +1,24 @@
-<div class="page-animate min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+<div class="page-animate min-h-screen bg-mempa-black text-[#f5e6d3]">
 
-  <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
-    <div class="max-w-7xl mx-auto flex items-center gap-4">
-      <button (click)="goBack()" class="flex items-center gap-2 text-[#a89078] hover:text-[#f5e6d3] transition-colors">
-        <span>←</span>
-        <span class="text-sm font-medium">Retour</span>
-      </button>
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
-          <span class="text-[#1a1410] font-bold text-xs">M</span>
-        </div>
-        <span class="font-bold text-sm tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</span>
-      </div>
-    </div>
-  </nav>
+  <!-- NavbarComponent -->
+  <app-navbar [showBackButton]="true"></app-navbar>
+
 
   <!-- Modale suppression playlist -->
   @if (showDeleteConfirm) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-      <div class="bg-[#2a1f15] rounded-lg p-8 max-w-sm w-full border border-[#3d2d1e]">
-        <h2 class="text-xl font-bold mb-2" style="font-family: 'Playfair Display', serif">
+      <div class="bg-mempa-dark rounded-lg p-8 max-w-sm w-full border border-mempa-darker">
+        <h2 class="text-xl font-bold mb-2 font-serif">
           Supprimer la playlist ?
         </h2>
-        <p class="text-[#a89078] text-sm mb-6">
+        <p class="text-mempa-darker-dim text-sm mb-6">
           Cette action est irréversible. La playlist
           <span class="text-[#f5e6d3] font-medium">{{ playlist?.name }}</span>
           sera définitivement supprimée.
         </p>
         <div class="flex gap-3">
           <button (click)="cancelDelete()"
-                  class="flex-1 px-4 py-2.5 bg-[#1a1410] text-[#a89078] text-sm font-medium hover:bg-[#3d2d1e] hover:text-[#f5e6d3] transition-all rounded-full">
+                  class="flex-1 px-4 py-2.5 bg-mempa-black text-mempa-darker-dim text-sm font-medium hover:bg-mempa-darker hover:text-[#f5e6d3] transition-all rounded-full">
             Annuler
           </button>
           <button (click)="confirmDelete()"
@@ -73,8 +61,8 @@
               </button>
 
               @if (showCoverMenu) {
-                <div class="absolute bottom-12 right-2 bg-[#2a1f15] border border-[#3d2d1e] rounded-lg p-2 shadow-xl z-10 min-w-[160px]">
-                  <label class="flex items-center gap-2 px-3 py-2 text-sm text-[#f5e6d3] hover:bg-[#3d2d1e] rounded-md cursor-pointer transition-colors">
+                <div class="absolute bottom-12 right-2 bg-mempa-dark border border-mempa-darker rounded-lg p-2 shadow-xl z-10 min-w-[160px]">
+                  <label class="flex items-center gap-2 px-3 py-2 text-sm text-[#f5e6d3] hover:bg-mempa-darker rounded-md cursor-pointer transition-colors">
                     🖼️ Choisir une image
                     <input
                       type="file"
@@ -96,7 +84,7 @@
           </div>
           <!-- Infos + Actions -->
           <div class="flex flex-col justify-end flex-1">
-            <p class="text-xs font-bold tracking-widest uppercase text-[#a89078] mb-2">Playlist</p>
+            <p class="text-xs font-bold tracking-widest uppercase text-mempa-darker-dim mb-2">Playlist</p>
 
             <!-- Titre avec renommage inline -->
             @if (isEditingName) {
@@ -105,28 +93,28 @@
                   [(ngModel)]="editedName"
                   (keyup.enter)="submitRename()"
                   (keyup.escape)="cancelEditName()"
-                  class="text-3xl md:text-5xl font-bold bg-transparent border-b-2 border-[#e8c46c] text-[#f5e6d3] focus:outline-none w-full"
+                  class="text-3xl md:text-5xl font-bold bg-transparent border-b-2 border-mempa-orange text-[#f5e6d3] focus:outline-none w-full"
                   style="font-family: 'Playfair Display', serif"
                   autofocus
                 />
                 <button (click)="submitRename()"
-                        class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] text-sm font-semibold rounded-full hover:bg-[#f0d080] transition-all shrink-0">
+                        class="px-4 py-2 bg-mempa-orange text-mempa-black text-sm font-semibold rounded-full hover:bg-[#f0d080] transition-all shrink-0">
                   ✓
                 </button>
                 <button (click)="cancelEditName()"
-                        class="px-4 py-2 bg-[#2a1f15] text-[#a89078] text-sm rounded-full hover:bg-[#3d2d1e] transition-all shrink-0">
+                        class="px-4 py-2 bg-mempa-dark text-mempa-darker-dim text-sm rounded-full hover:bg-mempa-darker transition-all shrink-0">
                   ✕
                 </button>
               </div>
             } @else {
               <div class="flex items-center gap-3 mb-4 group/title">
-                <h1 class="text-5xl md:text-7xl font-bold leading-tight" style="font-family: 'Playfair Display', serif">
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight font-serif">
                   {{ playlist.name }}
                 </h1>
-                @if (canEdit()) {
+                @if (isCreator()) {
                   <button
                     (click)="startEditName()"
-                    class="opacity-0 group-hover/title:opacity-100 transition-opacity p-2 text-[#a89078] hover:text-[#e8c46c] shrink-0"
+                    class="opacity-0 group-hover/title:opacity-100 transition-opacity p-2 text-mempa-darker-dim hover:text-mempa-orange shrink-0"
                     title="Renommer la playlist">
                     ✏️
                   </button>
@@ -136,11 +124,11 @@
 
             <!-- Créateur -->
             <div class="flex items-center gap-2 mb-2">
-              <div class="w-7 h-7 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
-                <span class="text-[#1a1410] font-bold text-xs">{{ playlist.creator.charAt(0).toUpperCase() }}</span>
+              <div class="w-7 h-7 bg-mempa-orange rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-mempa-black font-bold text-xs">{{ playlist.creator.charAt(0).toUpperCase() }}</span>
               </div>
               <div>
-                <p class="text-xs text-[#7a6050] uppercase tracking-wider">Créateur</p>
+                <p class="text-xs text-mempa-darker-dimmer uppercase tracking-wider">Créateur</p>
                 <p class="text-sm font-semibold text-[#f5e6d3]">{{ playlist.creator }}</p>
               </div>
             </div>
@@ -150,21 +138,23 @@
               <div class="flex items-start gap-2 mb-4">
                 <div class="flex -space-x-1 mt-1">
                   @for (contributor of playlist.contributors.slice(0, 3); track contributor) {
-                    <div class="w-7 h-7 bg-[#3d2d1e] border-2 border-[#1a1410] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span class="text-[#a89078] font-bold text-xs">{{ contributor.charAt(0).toUpperCase() }}</span>
+                    <div class="w-7 h-7 bg-mempa-darker border-2 border-mempa-black rounded-full flex items-center justify-center flex-shrink-0">
+                      <span class="text-mempa-darker-dim font-bold text-xs">{{ contributor.charAt(0).toUpperCase() }}</span>
                     </div>
                   }
                 </div>
                 <div>
-                  <p class="text-xs text-[#7a6050] uppercase tracking-wider">Contributeurs</p>
-                  <p class="text-sm text-[#a89078]">{{ playlist.contributors.join(', ') }}</p>
+                  <p class="text-xs text-mempa-darker-dimmer uppercase tracking-wider">
+                    Contributeur{{ playlist.contributors.length > 1 ? 's' : '' }}
+                  </p>
+                  <p class="text-sm text-mempa-darker-dim">{{ playlist.contributors.join(', ') }}</p>
                 </div>
               </div>
             }
 
             <!-- Métadonnées -->
-            <div class="flex items-center gap-2 text-sm flex-wrap mb-6 text-[#a89078]">
-              <span class="text-[#e8c46c] font-medium">{{ playlist.style }}</span>
+            <div class="flex items-center gap-2 text-sm flex-wrap mb-6 text-mempa-darker-dim">
+              <span class="text-mempa-orange font-medium">{{ playlist.style }}</span>
               <span>•</span>
               <span>{{ playlist.songs.length }} morceaux</span>
               <span>•</span>
@@ -180,18 +170,18 @@
                   class="flex items-center gap-2 px-5 py-2.5 border font-semibold text-sm transition-all duration-200 rounded-full"
                   [class]="isLiked
                     ? 'bg-red-500/20 border-red-500/50 text-red-400 hover:bg-red-500/30'
-                    : 'bg-[#2a1f15] border-[#3d2d1e] text-[#a89078] hover:border-red-500/30 hover:text-red-400'">
+                    : 'bg-mempa-dark border-mempa-darker text-mempa-darker-dim hover:border-red-500/30 hover:text-red-400'">
                   {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
                 </button>
               } @else {
-                <span class="flex items-center gap-2 px-5 py-2.5 text-sm text-[#7a6050]">
+                <span class="flex items-center gap-2 px-5 py-2.5 text-sm text-mempa-darker-dimmer">
                   🤍 {{ likesCount }}
                 </span>
               }
               @if (isLoggedIn()) {
                 <button
                   (click)="toggleAddSongForm()"
-                  class="px-5 py-2.5 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
+                  class="px-5 py-2.5 bg-mempa-orange text-mempa-black font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
                   {{ showAddSongForm ? '✕ Annuler' : '+ Ajouter un morceau' }}
                 </button>
               }
@@ -202,24 +192,23 @@
                   Supprimer la playlist
                 </button>
               }
-
             </div>
           </div>
         </div>
 
         <!-- Formulaire ajout morceau -->
         @if (showAddSongForm) {
-          <div class="bg-[#2a1f15] rounded-lg p-6 mb-8 border border-[#3d2d1e]">
-            <h3 class="text-lg font-bold mb-4" style="font-family: 'Playfair Display', serif">
+          <div class="bg-mempa-dark rounded-lg p-6 mb-8 border border-mempa-darker">
+            <h3 class="text-lg font-bold mb-4 font-serif">
               Ajouter un morceau
             </h3>
             <div class="flex flex-col sm:flex-row gap-3">
               <input [(ngModel)]="newSong.title" placeholder="Titre du morceau"
-                     class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all" />
+                     class="flex-1 bg-mempa-black border border-mempa-darker text-[#f5e6d3] placeholder-mempa-darker-dimmer px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-mempa-orange transition-all" />
               <input [(ngModel)]="newSong.artist" placeholder="Artiste"
-                     class="flex-1 bg-[#1a1410] border border-[#3d2d1e] text-[#f5e6d3] placeholder-[#7a6050] px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all" />
+                     class="flex-1 bg-mempa-black border border-mempa-darker text-[#f5e6d3] placeholder-mempa-darker-dimmer px-4 py-3 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-mempa-orange transition-all" />
               <button (click)="onAddSong()"
-                      class="px-6 py-3 bg-[#e8c46c] text-[#1a1410] font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full whitespace-nowrap">
+                      class="px-6 py-3 bg-mempa-orange text-mempa-black font-semibold text-sm hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full whitespace-nowrap">
                 Confirmer
               </button>
             </div>
@@ -228,8 +217,8 @@
 
         <!-- Liste des morceaux -->
         <div class="mb-12">
-          <div class="bg-[#2a1f15] rounded-lg overflow-hidden">
-            <div class="grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-3 border-b border-[#3d2d1e] text-xs font-medium text-[#a89078] uppercase tracking-wider">
+          <div class="bg-mempa-dark rounded-lg overflow-hidden">
+            <div class="grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-3 border-b border-mempa-darker text-xs font-medium text-mempa-darker-dim uppercase tracking-wider">
               <div class="w-8">#</div>
               <div>Titre</div>
               <div>Artiste</div>
@@ -237,17 +226,17 @@
               <div class="w-8"></div> </div>
 
             @for (song of playlist.songs; let i = $index; track i) {
-              <div class="grid grid-cols-[auto_1fr_1fr_auto_auto] items-center gap-4 px-6 py-4 hover:bg-[#3d2d1e] transition-colors group cursor-pointer">
-                <div class="w-8 text-[#a89078] text-sm">{{ i + 1 }}</div>
-                <div class="font-medium truncate group-hover:text-[#e8c46c] transition-colors">{{ song.title }}</div>
-                <div class="text-[#a89078] text-sm truncate">{{ song.artist }}</div>
-                <div class="w-16 text-right text-[#a89078] text-sm">{{ song.duration || '--:--' }}</div>
+              <div class="grid grid-cols-[auto_1fr_1fr_auto_auto] items-center gap-4 px-6 py-4 hover:bg-mempa-darker transition-colors group cursor-pointer">
+                <div class="w-8 text-mempa-darker-dim text-sm">{{ i + 1 }}</div>
+                <div class="font-medium truncate group-hover:text-mempa-orange transition-colors">{{ song.title }}</div>
+                <div class="text-mempa-darker-dim text-sm truncate">{{ song.artist }}</div>
+                <div class="w-16 text-right text-mempa-darker-dim text-sm">{{ song.duration || '--:--' }}</div>
 
                 <div class="w-8 text-right">
                   @if (canEdit()) {
                     <button
                       (click)="onRemoveSong(i, $event)"
-                      class="text-[#7a6050] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                      class="text-mempa-darker-dimmer hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                       title="Retirer ce morceau">
                       ✕
                     </button>
@@ -256,7 +245,7 @@
               </div>
             }
             @if (playlist.songs.length === 0) {
-              <div class="text-center py-12 text-[#7a6050]">
+              <div class="text-center py-12 text-mempa-darker-dimmer">
                 <p class="text-3xl mb-2">🎵</p>
                 <p class="text-sm">Aucun morceau dans cette playlist</p>
               </div>
@@ -267,8 +256,8 @@
     } @else {
       <div class="flex items-center justify-center min-h-[60vh]">
         <div class="text-center">
-          <div class="w-16 h-16 border-4 border-[#e8c46c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p class="text-[#a89078]">Chargement...</p>
+          <div class="w-16 h-16 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-mempa-darker-dim">Chargement...</p>
         </div>
       </div>
     }

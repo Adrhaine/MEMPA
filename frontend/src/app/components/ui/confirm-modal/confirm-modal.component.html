@@ -1,15 +1,15 @@
 @if (payload) {
   <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4"
        (click)="onClose()">
-    <div class="bg-[#2a1f15] border border-[#3d2d1e] rounded-xl p-8 max-w-md w-full shadow-2xl"
+    <div class="bg-mempa-dark border border-mempa-darker rounded-xl p-8 max-w-md w-full shadow-2xl"
          (click)="$event.stopPropagation()">
-      <h3 class="text-lg font-bold mb-3" style="font-family: 'Playfair Display', serif">
+      <h3 class="text-lg font-bold mb-3 font-serif">
         Confirmation requise
       </h3>
-      <p class="text-[#a89078] text-sm mb-6 leading-relaxed">{{ payload.message }}</p>
+      <p class="text-mempa-cream-dim text-sm mb-6 leading-relaxed">{{ payload.message }}</p>
       <div class="flex gap-3 justify-end">
         <button (click)="onClose()"
-                class="px-5 py-2 border border-[#3d2d1e] text-[#a89078] text-sm rounded-lg hover:border-[#f5e6d3] hover:text-[#f5e6d3] transition-all">
+                class="px-5 py-2 border border-mempa-darker text-mempa-cream-dim text-sm rounded-lg hover:border-mempa-cream hover:text-mempa-cream transition-all">
           Annuler
         </button>
         <button (click)="onConfirm()"

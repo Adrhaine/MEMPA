@@ -3,7 +3,8 @@ import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 @Component({
   selector: 'app-particles',
   standalone: true,
-  template: `<canvas #canvas style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>`,
+  templateUrl: './particles.component.html',
+  styleUrl: './particles.component.css',
 })
 export class ParticlesComponent implements OnInit, OnDestroy {
   private canvas!: HTMLCanvasElement;

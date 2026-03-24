@@ -1,34 +1,13 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
 require('dotenv').config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const MONGO_URL = process.env.NODE_ENV === 'prod'
-    ? process.env.MONGO_URL_PROD
-    : process.env.MONGO_URL_DEV;
-
-mongoose.connect(MONGO_URL)
-    .then(() => console.log(`✅ MongoDB connecté (${process.env.NODE_ENV})`))
-    .catch(err => console.error(':x: Erreur MongoDB :', err));
-
-const playlistRoutes = require('./routes/playlists');
-const authRoutes = require('./routes/auth');
-const stylesRoutes = require('./routes/styles');
-const adminRoutes = require('./routes/admin');
-
-app.use('/api/playlists', playlistRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/styles', stylesRoutes);
-app.use('/api/admin', adminRoutes);
+const app = require('./app');
+const connectDB = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 
-if (process.env.NODE_ENV !== 'test') {
-    app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));
-}
-
-module.exports = app;
+// On connecte la base de données
+connectDB().then(() => {
+    // Une fois connecté, on lance le serveur
+    if (process.env.NODE_ENV !== 'test') {
+        app.listen(PORT, () => console.log(`✅ Serveur lancé sur le port ${PORT}`));
+    }
+});
