@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Playlist } from '../models/playlist.model';
 import { AuthService } from './auth.service';
@@ -71,18 +71,20 @@ export class PlaylistService {
     return this.http.post<Playlist>(this.apiUrl, formData);
   }
 
-  updateCover(id: string, coverFile: File | null): Observable<Playlist> {
+  updateCover(id: string, coverFile: File): Observable<Playlist> {
     const formData = new FormData();
-    if (coverFile) {
-      // Nouvelle image -> on l'envoie
-      formData.append('cover', coverFile);
-    }
-    // Si coverFile est null, le backend met coverImage à null (gradient)
+    formData.append('cover', coverFile);
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/cover`, formData);
+  }
+
+  removeCover(id: string): Observable<Playlist> {
+    const formData = new FormData();
+    formData.append('removeCover', 'true');
     return this.http.patch<Playlist>(`${this.apiUrl}/${id}/cover`, formData);
   }
 
   rename(id: string, name: string): Observable<Playlist> {
-    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/rename`, { name });
+    return this.http.patch<Playlist>(`${this.apiUrl}/${id}/name`, { name });
   }
 
   // DELETE — créateur uniquement

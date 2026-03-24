@@ -8,11 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { StyleService } from '../../services/style.service';
 import { NotificationService } from '../../services/notification.service';
 import { ConfirmService } from '../../services/confirm.service';
+import {NavbarComponent} from '../ui/navbar/navbar.component';
 
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './playlist-detail.component.html',
   styleUrl: './playlist-detail.component.css'
 })
@@ -67,6 +68,13 @@ export class PlaylistDetailComponent implements OnInit {
 
   isLoggedIn(): boolean { return this.authService.isLoggedIn(); }
 
+
+  isCreator(): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !this.playlist) return false;
+    return this.playlist.createdBy === currentUser.id;
+  }
+
   // Vérifie si l'utilisateur a le droit de modifier (Créateur OU Admin)
   canEdit(): boolean {
     const currentUser = this.authService.getCurrentUser();
@@ -97,6 +105,7 @@ export class PlaylistDetailComponent implements OnInit {
         if (err.status !== 401 && err.status !== 403) {
           this.notificationService.error('Erreur lors du like');
         }
+        this.showDeleteConfirm = false;
       }
     });
   }
@@ -118,6 +127,7 @@ export class PlaylistDetailComponent implements OnInit {
         if (err.status !== 401 && err.status !== 403) {
           this.notificationService.error(err.error?.message || 'Erreur lors de l\'ajout');
         }
+        this.showDeleteConfirm = false;
       }
     });
   }
@@ -184,7 +194,8 @@ export class PlaylistDetailComponent implements OnInit {
       },
       error: () => {
         this.coverPreviewUrl = null;
-        this.notificationService.error('Erreur lors de l\'upload');
+        this.showCoverMenu = false;
+        this.notificationService.error('Erreur lors de l\'upload de l\'image');
         this.cdr.detectChanges();
       }
     });
@@ -195,7 +206,7 @@ export class PlaylistDetailComponent implements OnInit {
     this.confirmService.ask(
       'Voulez-vous vraiment supprimer cette pochette ? La playlist retrouvera son dégradé de couleurs par défaut.',
       () => {
-        this.playlistService.updateCover(this.playlist!._id!, null).subscribe({
+        this.playlistService.removeCover(this.playlist!._id!).subscribe({
           next: (updatedPlaylist) => {
             this.playlist = updatedPlaylist;
             this.showCoverMenu = false;

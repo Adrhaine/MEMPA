@@ -1,0 +1,40 @@
+<nav class="sticky top-0 z-50 bg-mempa-black/95 backdrop-blur-sm border-b border-mempa-darker px-8 py-4">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+    <div class="flex items-center gap-4">
+      @if (showBackButton) {
+        <button (click)="goHome()" class="flex items-center gap-2 text-mempa-cream-dim hover:text-mempa-cream transition-colors text-sm">
+          ← Retour
+        </button>
+      }
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-mempa-orange rounded-full flex items-center justify-center">
+          <span class="text-mempa-black font-bold text-xs">M</span>
+        </div>
+        <div>
+          <span class="font-bold text-sm font-serif text-mempa-cream">MEMPA</span>
+          @if (showSubtitle) {
+            <p class="text-mempa-cream-dimmer text-[10px] tracking-widest uppercase hidden sm:block">Multi E-Music Playlist Organizer</p>
+          }
+        </div>
+        @if (badgeText) {
+          <span class="ml-2 px-2 py-0.5 bg-mempa-orange/20 text-mempa-orange text-[10px] font-bold uppercase tracking-widest rounded-full border border-mempa-orange/30">
+            {{ badgeText }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+
+      <ng-content></ng-content>
+
+      @if (username) {
+        <button (click)="onLogout()" class="px-4 py-2 bg-mempa-cream/10 text-mempa-cream-dim text-xs hover:bg-mempa-cream/20 hover:text-mempa-cream transition-all rounded-full">
+          Déconnexion
+        </button>
+      }
+    </div>
+
+  </div>
+</nav>

@@ -21,11 +21,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 401) {
+        // Uniquement 401 = vrai problème de session
         notificationService.error('Votre session a expiré, veuillez vous reconnecter');
         authService.logout();
-        // Petit délai pour que la notification s'affiche avant la redirection
         setTimeout(() => router.navigate(['/login']), 3000);
+      } else if (error.status === 403) {
+        // 403 = authentifié mais pas autorisé -> on affiche le message du backend
+        const message = error.error?.message || 'Vous n\'êtes pas autorisé à effectuer cette action';
+        notificationService.error(message);
+        // Pas de logout, pas de redirection
       }
       return throwError(() => error);
     })

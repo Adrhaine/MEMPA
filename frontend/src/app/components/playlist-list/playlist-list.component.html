@@ -1,69 +1,46 @@
-<div class="page-animate min-h-screen bg-[#1a1410] text-[#f5e6d3]">
+<div class="page-animate min-h-screen bg-mempa-black text-mempa-cream">
 
   <app-particles />
 
-  <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-
-      <!-- Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-[#e8c46c] rounded-full flex items-center justify-center">
-          <span class="text-[#1a1410] font-bold text-sm">M</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight" style="font-family: 'Playfair Display', serif">MEMPA</h1>
-          <p class="text-[#7a6050] text-[10px] tracking-widest uppercase hidden sm:block">Multi E-Music Playlist Organizer</p>
-        </div>
-      </div>
-
-      <!-- Actions navbar -->
-      <div class="flex items-center gap-3">
-        @if (isLoggedIn()) {
+  <!-- NavbarComponent -->
+  <div class="page-animate min-h-screen bg-mempa-black text-mempa-cream">
+    <app-navbar [showSubtitle]="true">
+      @if (isLoggedIn()) {
+        <button
+          (click)="goToProfile()"
+          class="flex items-center gap-2 px-3 py-1.5 bg-mempa-dark hover:bg-mempa-darker transition-all rounded-full group"
+          title="Mon profil">
+          <div class="w-6 h-6 bg-mempa-orange rounded-full flex items-center justify-center flex-shrink-0">
+            <span class="text-mempa-black font-bold text-[10px]">{{ getUsername().charAt(0).toUpperCase() }}</span>
+          </div>
+          <div class="hidden sm:flex flex-col items-start leading-tight">
+            <span class="text-mempa-cream text-xs font-medium group-hover:text-mempa-orange transition-colors">{{ getUsername() }}</span>
+            <span class="text-mempa-cream-dimmer text-[10px]">Mon profil</span>
+          </div>
+        </button>
+        <button
+          (click)="goToCreate()"
+          class="px-4 py-2 bg-mempa-orange text-mempa-black font-semibold text-xs hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
+          + Nouvelle playlist
+        </button>
+        @if (isAdmin()) {
           <button
-            (click)="goToProfile()"
-            class="flex items-center gap-2 px-3 py-1.5 bg-[#2a1f15] hover:bg-[#3d2d1e] transition-all rounded-full group"
-            title="Mon profil">
-            <div class="w-6 h-6 bg-[#e8c46c] rounded-full flex items-center justify-center flex-shrink-0">
-              <span class="text-[#1a1410] font-bold text-[10px]">{{ getUsername().charAt(0).toUpperCase() }}</span>
-            </div>
-            <div class="hidden sm:flex flex-col items-start leading-tight">
-              <span class="text-[#f5e6d3] text-xs font-medium group-hover:text-[#e8c46c] transition-colors">{{ getUsername() }}</span>
-              <span class="text-[#7a6050] text-[10px]">Mon profil</span>
-            </div>
-          </button>
-
-          <button
-            (click)="goToCreate()"
-            class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
-            + Nouvelle playlist
-          </button>
-
-          @if (isAdmin()) {
-            <button
-              (click)="router.navigate(['/admin'])"
-              class="px-4 py-2 bg-[#e8c46c]/10 text-[#e8c46c] text-xs font-semibold hover:bg-[#e8c46c]/20 transition-all rounded-full border border-[#e8c46c]/30">
-              ⚙ Admin
-            </button>
-          }
-
-          <button
-            (click)="onLogout()"
-            class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
-            Déconnexion
-          </button>
-
-        } @else {
-          <span class="text-[#7a6050] text-xs hidden sm:block">Connectez-vous pour créer une playlist</span>
-          <button
-            (click)="goToLogin()"
-            class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs hover:bg-[#f0d080] transition-all rounded-full">
-            Se connecter
+            (click)="router.navigate(['/admin'])"
+            class="px-4 py-2 bg-mempa-orange/10 text-mempa-orange text-xs font-semibold hover:bg-mempa-orange/20 transition-all rounded-full border border-mempa-orange/30">
+            ⚙ Admin
           </button>
         }
-      </div>
-    </div>
-  </nav>
+      } @else {
+        <span class="text-mempa-cream-dimmer text-xs hidden sm:block">Connectez-vous pour créer une playlist</span>
+        <button
+          (click)="goToLogin()"
+          class="px-4 py-2 bg-mempa-orange text-mempa-black font-semibold text-xs hover:bg-[#f0d080] transition-all rounded-full">
+          Se connecter
+        </button>
+      }
+    </app-navbar>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-8 py-8">
 
   <!-- Contenu principal -->
   <div class="relative z-10 max-w-7xl mx-auto px-8 py-8">
@@ -75,19 +52,19 @@
         [(ngModel)]="searchTerm"
         (input)="onSearch()"
         placeholder="Rechercher une playlist..."
-        class="flex-1 bg-[#241a10] border-0 text-[#f5e6d3] placeholder-[#7a6050] px-5 py-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-[#e8c46c] transition-all"
+        class="flex-1 bg-[#241a10] border-0 text-mempa-cream placeholder-mempa-cream-dimmer px-5 py-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-mempa-orange transition-all"
       />
       <div class="flex gap-2 items-center">
         @for (btn of [{label: 'Nom', field: 'name'}, {label: 'Clics', field: 'clicks'}]; track btn.field) {
           <button
             (click)="onSort(btn.field)"
             [class]="sortBy === btn.field
-              ? 'px-4 py-2 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full'
-              : 'px-4 py-2 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
+              ? 'px-4 py-2 text-xs font-semibold bg-mempa-orange text-mempa-black rounded-full'
+              : 'px-4 py-2 text-xs font-medium bg-[#241a10] text-mempa-cream-dim hover:bg-mempa-darker rounded-full transition-colors'">
             {{ btn.label }} {{ sortBy === btn.field ? (order === 'asc' ? '↑' : '↓') : '' }}
           </button>
         }
-        <button (click)="onReset()" class="px-3 py-2 text-xs text-[#7a6050] hover:text-[#f5e6d3] transition-colors">
+        <button (click)="onReset()" class="px-3 py-2 text-xs text-mempa-cream-dimmer hover:text-mempa-cream transition-colors">
           Reset
         </button>
       </div>
@@ -96,13 +73,13 @@
     <!-- Filtres par style -->
     @if (availableStyles.length > 0) {
       <div class="flex flex-wrap gap-2 items-center mb-8">
-        <span class="text-[#7a6050] text-xs uppercase tracking-widest mr-1">Styles :</span>
+        <span class="text-mempa-cream-dimmer text-xs uppercase tracking-widest mr-1">Styles :</span>
         @for (style of availableStyles; track style._id) {
           <button
             (click)="onStyleToggle(style.name)"
             [class]="isStyleSelected(style.name)
-              ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
-              : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
+              ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-mempa-orange text-mempa-black rounded-full transition-all'
+              : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-mempa-cream-dim hover:bg-mempa-darker rounded-full transition-colors'">
             <span class="w-2 h-2 rounded-full" [ngStyle]="getGradientStyle(style.name)"></span>
             {{ style.name }}
             @if (isStyleSelected(style.name)) { <span>✕</span> }
@@ -113,10 +90,10 @@
 
     <!-- Titre section -->
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold" style="font-family: 'Playfair Display', serif">
+      <h2 class="text-2xl font-bold font-serif">
         {{ searchTerm ? 'Résultats pour "' + searchTerm + '"' : 'Toutes les playlists' }}
       </h2>
-      <span class="text-[#7a6050] text-sm">{{ totalPlaylists }} playlist{{ totalPlaylists > 1 ? 's' : '' }}</span>
+      <span class="text-mempa-cream-dimmer text-sm">{{ totalPlaylists }} playlist{{ totalPlaylists > 1 ? 's' : '' }}</span>
     </div>
 
     <!-- Grille -->
@@ -124,7 +101,7 @@
       @for (playlist of playlists; track playlist._id) {
         <div
           (click)="goToDetail(playlist._id!)"
-          class="group bg-[#2a1f15] p-4 cursor-pointer hover:bg-[#3d2d1e] transition-all duration-300 rounded-lg">
+          class="group bg-mempa-dark p-4 cursor-pointer hover:bg-mempa-darker transition-all duration-300 rounded-lg">
 
           <!-- Cover : image Cloudinary OU gradient du style -->
           <div class="w-full aspect-square rounded-md mb-4 relative overflow-hidden transition-all duration-300 group-hover:brightness-110">
@@ -143,14 +120,13 @@
           </div>
 
           <!-- Infos -->
-          <h2 class="text-sm font-bold mb-1 truncate group-hover:text-[#e8c46c] transition-colors"
-              style="font-family: 'Playfair Display', serif">
+          <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-serif">
             {{ playlist.name }}
           </h2>
-          <p class="text-[#a89078] text-xs mb-3">
-            <span class="text-[#e8c46c]/80">{{ playlist.style }}</span> · {{ playlist.creator }}
+          <p class="text-mempa-cream-dim text-xs mb-3">
+            <span class="text-mempa-orange/80">{{ playlist.style }}</span> · {{ playlist.creator }}
           </p>
-          <div class="flex items-center gap-2 text-[11px] text-[#7a6050]">
+          <div class="flex items-center gap-2 text-[11px] text-mempa-cream-dimmer">
             <span>{{ playlist.songs.length }} morceaux</span>
             <span>·</span>
             <span>{{ playlist.clicks }} vues</span>
@@ -170,20 +146,20 @@
           [disabled]="currentPage === 1"
           class="px-4 py-2 text-sm rounded-full transition-all"
           [class]="currentPage === 1
-            ? 'text-[#3d2d1e] cursor-not-allowed'
-            : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
+            ? 'text-mempa-darker cursor-not-allowed'
+            : 'text-mempa-cream-dim hover:text-mempa-cream hover:bg-mempa-dark'">
           ← Précédent
         </button>
 
         @for (page of getPageNumbers(); track $index) {
           @if (page === '...') {
-            <span class="text-[#7a6050] px-2">...</span>
+            <span class="text-mempa-cream-dimmer px-2">...</span>
           } @else {
             <button
               (click)="goToPage(+page)"
               [class]="currentPage === page
-                ? 'w-9 h-9 text-sm font-bold bg-[#e8c46c] text-[#1a1410] rounded-full'
-                : 'w-9 h-9 text-sm text-[#a89078] hover:bg-[#2a1f15] hover:text-[#f5e6d3] rounded-full transition-all'">
+                ? 'w-9 h-9 text-sm font-bold bg-mempa-orange text-mempa-black rounded-full'
+                : 'w-9 h-9 text-sm text-mempa-cream-dim hover:bg-mempa-dark hover:text-mempa-cream rounded-full transition-all'">
               {{ page }}
             </button>
           }
@@ -194,8 +170,8 @@
           [disabled]="currentPage === totalPages"
           class="px-4 py-2 text-sm rounded-full transition-all"
           [class]="currentPage === totalPages
-            ? 'text-[#3d2d1e] cursor-not-allowed'
-            : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
+            ? 'text-mempa-darker cursor-not-allowed'
+            : 'text-mempa-cream-dim hover:text-mempa-cream hover:bg-mempa-dark'">
           Suivant →
         </button>
 
@@ -204,11 +180,11 @@
 
     <!-- État vide -->
     @if (playlists.length === 0) {
-      <div class="text-center py-32 text-[#7a6050]">
+      <div class="text-center py-32 text-mempa-cream-dimmer">
         <p class="text-6xl mb-4">🎵</p>
         <p class="text-sm tracking-widest uppercase">Aucune playlist trouvée</p>
         @if (searchTerm) {
-          <button (click)="onReset()" class="mt-4 text-[#e8c46c] text-sm hover:underline">
+          <button (click)="onReset()" class="mt-4 text-mempa-orange text-sm hover:underline">
             Effacer la recherche
           </button>
         }
