@@ -14,15 +14,16 @@
 
     <!-- Onglets -->
     <div class="flex gap-1 mb-8 border-b border-mempa-darker">
-      <button
-        *ngFor="let tab of tabs"
-        (click)="setTab(tab.id)"
-        [class]="'px-5 py-3 text-sm font-medium transition-all rounded-t-lg -mb-px ' +
-          (activeTab === tab.id
-            ? 'text-mempa-orange border border-b-mempa-dark border-mempa-darker bg-mempa-dark'
-            : 'text-mempa-cream-dim hover:text-mempa-cream')">
-        {{ tab.label }}
-      </button>
+      @for (tab of tabs; track tab.id) {
+        <button
+          (click)="setTab(tab.id)"
+          [class]="'px-5 py-3 text-sm font-medium transition-all rounded-t-lg -mb-px ' +
+        (activeTab === tab.id
+          ? 'text-mempa-orange border border-b-mempa-dark border-mempa-darker bg-mempa-dark'
+          : 'text-mempa-cream-dim hover:text-mempa-cream')">
+          {{ tab.label }}
+        </button>
+      }
     </div>
 
     <!-- Spinner -->
