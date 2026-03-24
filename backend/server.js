@@ -18,13 +18,12 @@ mongoose.connect(MONGO_URL)
 const playlistRoutes = require('./routes/playlists');
 const authRoutes = require('./routes/auth');
 const stylesRoutes = require('./routes/styles');
-const adminRoutes    = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/styles', stylesRoutes);
-app.use('/api/admin',  adminRoutes);
-
+app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 3000;
 

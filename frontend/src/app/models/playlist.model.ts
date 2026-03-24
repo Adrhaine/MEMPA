@@ -14,6 +14,7 @@ export interface Playlist {
   style: string;
   createdBy?: string;
   likes?: string[];
+  coverImage?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

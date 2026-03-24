@@ -1,6 +1,7 @@
 <div class="page-animate min-h-screen bg-[#1a1410] text-[#f5e6d3]">
 
   <app-particles />
+
   <!-- Navbar -->
   <nav class="sticky top-0 z-50 bg-[#1a1410]/95 backdrop-blur-sm border-b border-[#3d2d1e] px-8 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -19,9 +20,6 @@
       <!-- Actions navbar -->
       <div class="flex items-center gap-3">
         @if (isLoggedIn()) {
-          <!-- Utilisateur connecté -->
-
-            <!-- Bouton Profil : avatar initiale + label -->
           <button
             (click)="goToProfile()"
             class="flex items-center gap-2 px-3 py-1.5 bg-[#2a1f15] hover:bg-[#3d2d1e] transition-all rounded-full group"
@@ -40,6 +38,7 @@
             class="px-4 py-2 bg-[#e8c46c] text-[#1a1410] font-semibold text-xs hover:bg-[#f0d080] hover:scale-105 transition-all duration-200 rounded-full">
             + Nouvelle playlist
           </button>
+
           @if (isAdmin()) {
             <button
               (click)="router.navigate(['/admin'])"
@@ -47,13 +46,14 @@
               ⚙ Admin
             </button>
           }
+
           <button
             (click)="onLogout()"
             class="px-4 py-2 bg-[#f5e6d3]/10 text-[#a89078] text-xs hover:bg-[#f5e6d3]/20 hover:text-[#f5e6d3] transition-all rounded-full">
             Déconnexion
           </button>
+
         } @else {
-          <!-- Non connecté -->
           <span class="text-[#7a6050] text-xs hidden sm:block">Connectez-vous pour créer une playlist</span>
           <button
             (click)="goToLogin()"
@@ -101,8 +101,8 @@
           <button
             (click)="onStyleToggle(style.name)"
             [class]="isStyleSelected(style.name)
-  ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
-  : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
+              ? 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#e8c46c] text-[#1a1410] rounded-full transition-all'
+              : 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-[#241a10] text-[#a89078] hover:bg-[#3d2d1e] rounded-full transition-colors'">
             <span class="w-2 h-2 rounded-full" [ngStyle]="getGradientStyle(style.name)"></span>
             {{ style.name }}
             @if (isStyleSelected(style.name)) { <span>✕</span> }
@@ -126,10 +126,20 @@
           (click)="goToDetail(playlist._id!)"
           class="group bg-[#2a1f15] p-4 cursor-pointer hover:bg-[#3d2d1e] transition-all duration-300 rounded-lg">
 
-          <!-- Cover with dynamic gradient -->
-          <div
-            [ngStyle]="getGradientStyle(playlist.style)"
-            class="w-full aspect-square rounded-md mb-4 flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:brightness-110">
+          <!-- Cover : image Cloudinary OU gradient du style -->
+          <div class="w-full aspect-square rounded-md mb-4 relative overflow-hidden transition-all duration-300 group-hover:brightness-110">
+            @if (playlist.coverImage) {
+              <img
+                [src]="playlist.coverImage"
+                alt="Pochette"
+                class="w-full h-full object-cover"
+              />
+            } @else {
+              <div
+                [ngStyle]="getGradientStyle(playlist.style)"
+                class="w-full h-full">
+              </div>
+            }
           </div>
 
           <!-- Infos -->
@@ -155,18 +165,16 @@
     @if (totalPages > 1) {
       <div class="flex items-center justify-center gap-2 mt-10">
 
-        <!-- Bouton précédent -->
         <button
           (click)="goToPage(currentPage - 1)"
           [disabled]="currentPage === 1"
           class="px-4 py-2 text-sm rounded-full transition-all"
           [class]="currentPage === 1
-        ? 'text-[#3d2d1e] cursor-not-allowed'
-        : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
+            ? 'text-[#3d2d1e] cursor-not-allowed'
+            : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
           ← Précédent
         </button>
 
-        <!-- Numéros de pages -->
         @for (page of getPageNumbers(); track $index) {
           @if (page === '...') {
             <span class="text-[#7a6050] px-2">...</span>
@@ -174,28 +182,25 @@
             <button
               (click)="goToPage(+page)"
               [class]="currentPage === page
-            ? 'w-9 h-9 text-sm font-bold bg-[#e8c46c] text-[#1a1410] rounded-full'
-            : 'w-9 h-9 text-sm text-[#a89078] hover:bg-[#2a1f15] hover:text-[#f5e6d3] rounded-full transition-all'">
+                ? 'w-9 h-9 text-sm font-bold bg-[#e8c46c] text-[#1a1410] rounded-full'
+                : 'w-9 h-9 text-sm text-[#a89078] hover:bg-[#2a1f15] hover:text-[#f5e6d3] rounded-full transition-all'">
               {{ page }}
             </button>
           }
         }
 
-        <!-- Bouton suivant -->
         <button
           (click)="goToPage(currentPage + 1)"
           [disabled]="currentPage === totalPages"
           class="px-4 py-2 text-sm rounded-full transition-all"
           [class]="currentPage === totalPages
-        ? 'text-[#3d2d1e] cursor-not-allowed'
-        : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
+            ? 'text-[#3d2d1e] cursor-not-allowed'
+            : 'text-[#a89078] hover:text-[#f5e6d3] hover:bg-[#2a1f15]'">
           Suivant →
         </button>
 
       </div>
     }
-    <!-- Fin pagination -->
-
 
     <!-- État vide -->
     @if (playlists.length === 0) {

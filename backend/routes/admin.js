@@ -5,11 +5,22 @@ const adminMiddleware = require('../middleware/admin');
 const User = require('../models/User');
 const Playlist = require('../models/Playlist');
 const Style = require('../models/Style');
+const {v2: cloudinary} = require("cloudinary");
 
 // Toutes les routes de ce fichier sont protégées par les deux middlewares :
 router.use(authMiddleware, adminMiddleware);
 
-
+async function deleteCloudinaryImage(coverImage) {
+    if (!coverImage) return;
+    try {
+        const urlParts = coverImage.split('/');
+        const filename = urlParts[urlParts.length - 1].split('.')[0];
+        const publicId = `mempa/covers/${filename}`;
+        await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+        console.error('Erreur suppression Cloudinary:', err);
+    }
+}
 
 // GET /api/admin/users — liste tous les utilisateurs
 router.get('/users', async (req, res) => {
@@ -27,6 +38,7 @@ router.get('/users', async (req, res) => {
 // DELETE /api/admin/users/:id — supprime un utilisateur
 router.delete('/users/:id', async (req, res) => {
     try {
+
         if (req.params.id === req.user.userId) {
             return res.status(400).json({ message: 'Vous ne pouvez pas supprimer votre propre compte' });
         }
@@ -36,10 +48,11 @@ router.delete('/users/:id', async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        // 1. Supprimer toutes les playlists créées par cet utilisateur
+        for (let p of userPlaylists) {
+            await deleteCloudinaryImage(p.coverImage);
+        }
         await Playlist.deleteMany({ createdBy: req.params.id });
 
-        // 2. Retirer les likes de cet utilisateur sur toutes les playlists
         await Playlist.updateMany(
             { likes: req.params.id },
             { $pull: { likes: req.params.id } }
@@ -83,13 +96,30 @@ router.patch('/users/:id/role', async (req, res) => {
 });
 
 // DELETE /api/admin/playlists/:id — supprime n'importe quelle playlist (sans vérifier le créateur)
-router.delete('/playlists/:id', async (req, res) => {
+router.delete('/users/:id', async (req, res) => {
     try {
-        const playlist = await Playlist.findByIdAndDelete(req.params.id);
-        if (!playlist) {
-            return res.status(404).json({ message: 'Playlist non trouvée' });
+        if (req.params.id === req.user.userId) {
+            return res.status(400).json({ message: 'Vous ne pouvez pas supprimer votre propre compte' });
         }
-        res.json({ message: `Playlist "${playlist.name}" supprimée par l'administrateur` });
+
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        const userPlaylists = await Playlist.find({ createdBy: req.params.id });
+
+        for (let p of userPlaylists) {
+            await deleteCloudinaryImage(p.coverImage);
+        }
+
+        await Playlist.deleteMany({ createdBy: req.params.id });
+        await Playlist.updateMany(
+            { likes: req.params.id },
+            { $pull: { likes: req.params.id } }
+        );
+
+        res.json({ message: `Utilisateur "${user.username}" et toutes ses données ont été supprimés avec succès` });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

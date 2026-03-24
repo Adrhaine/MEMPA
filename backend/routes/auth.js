@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Playlist = require('../models/Playlist');
 const authMiddleware = require('../middleware/auth');
 
 // POST /api/auth/register — Créer un compte
@@ -102,6 +103,11 @@ router.patch('/profile', authMiddleware, async (req, res) => {
             req.user.userId,
             { username: username.trim() },
             { returnDocument: 'after' }
+        );
+
+        await Playlist.updateMany(
+            { createdBy: req.user.userId },
+            { creator: username.trim() }
         );
 
         res.json({
