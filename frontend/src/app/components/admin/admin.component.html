@@ -26,78 +26,68 @@
       }
     </div>
 
-    <!-- Spinner -->
-    @if (isLoading) {
-      <div class="flex items-center justify-center py-24">
-        <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }
-
-    <!-- Onglet statistiques -->
-    @if (activeTab === 'stats' && !isLoading && stats) {
-
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
-          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Utilisateurs</p>
-          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalUsers }}</p>
+    @if (activeTab === 'stats') {
+      @if (isLoading && !stats) {
+        <div class="flex items-center justify-center py-24">
+          <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
-          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Playlists</p>
-          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalPlaylists }}</p>
-        </div>
-        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
-          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Morceaux</p>
-          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalSongs }}</p>
-        </div>
-        <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
-          <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Total vues</p>
-          <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalViews }}</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col lg:col-span-2">
-          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Créations (30 jours)</h2>
-          <div class="relative h-64 w-full">
-            <canvas #timelineChart></canvas>
+      } @else if (stats) {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+            <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Utilisateurs</p>
+            <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalUsers }}</p>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+            <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Playlists</p>
+            <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalPlaylists }}</p>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+            <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Morceaux</p>
+            <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalSongs }}</p>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-5 border border-mempa-darker">
+            <p class="text-mempa-cream-dim text-xs uppercase tracking-widest mb-2">Total vues</p>
+            <p class="text-3xl font-bold text-mempa-orange">{{ stats.keyMetrics.totalViews }}</p>
           </div>
         </div>
 
-        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Répartition des styles</h2>
-          <div class="relative h-64 w-full">
-            <canvas #styleChart></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col lg:col-span-2">
+            <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Créations (30 jours)</h2>
+            <div class="relative h-64 w-full">
+              <canvas #timelineChart></canvas>
+            </div>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+            <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Répartition des styles</h2>
+            <div class="relative h-64 w-full">
+              <canvas #styleChart></canvas>
+            </div>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+            <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Artistes</h2>
+            <div class="relative h-64 w-full">
+              <canvas #artistsChart></canvas>
+            </div>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+            <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Vues)</h2>
+            <div class="relative h-64 w-full">
+              <canvas #topPlaylistsChart></canvas>
+            </div>
+          </div>
+          <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
+            <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Likes)</h2>
+            <div class="relative h-64 w-full">
+              <canvas #topLikedChart></canvas>
+            </div>
           </div>
         </div>
-
-        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Artistes</h2>
-          <div class="relative h-64 w-full">
-            <canvas #artistsChart></canvas>
-          </div>
-        </div>
-
-        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Vues)</h2>
-          <div class="relative h-64 w-full">
-            <canvas #topPlaylistsChart></canvas>
-          </div>
-        </div>
-
-        <div class="bg-mempa-dark rounded-lg p-6 border border-mempa-darker flex flex-col">
-          <h2 class="text-base font-bold mb-4 text-mempa-cream font-serif">Top 5 Playlists (Likes)</h2>
-          <div class="relative h-64 w-full">
-            <canvas #topLikedChart></canvas>
-          </div>
-        </div>
-
-      </div>
+      }
     }
 
     <!-- Onglet utilisateurs -->
-    @if (activeTab === 'users' && !isLoading) {
-
+    @if (activeTab === 'users') {
       <div class="flex items-center gap-4 mb-6">
         <div class="relative flex-1 max-w-sm">
           <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher par nom ou email…"
@@ -106,8 +96,12 @@
         <span class="text-mempa-cream-dim text-sm shrink-0">{{ filteredUsers.length }} utilisateur(s)</span>
       </div>
 
-      @if (filteredUsers.length > 0) {
-        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden">
+      @if (isLoading && users.length === 0) {
+        <div class="flex items-center justify-center py-24">
+          <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      } @else if (filteredUsers.length > 0) {
+        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden transition-opacity" [class.opacity-50]="isLoading">
           <table class="w-full text-sm">
             <thead>
             <tr class="border-b border-mempa-darker text-mempa-cream-dim text-xs uppercase tracking-wider">
@@ -163,7 +157,7 @@
             </tbody>
           </table>
         </div>
-      } @else {
+      } @else if (!isLoading) {
         <div class="text-center py-16 text-mempa-cream-dimmer">
           <p class="text-4xl mb-4">👥</p>
           <p>Aucun utilisateur trouvé</p>
@@ -172,8 +166,7 @@
     }
 
     <!-- Onglet styles musicaux -->
-    @if (activeTab === 'styles' && !isLoading) {
-
+    @if (activeTab === 'styles') {
       <div class="flex items-center justify-between mb-6">
         <span class="text-mempa-cream-dim text-sm">{{ styles.length }} style(s)</span>
         <button (click)="showAddStyleForm = !showAddStyleForm"
@@ -217,10 +210,13 @@
         </div>
       }
 
-      @if (styles.length > 0) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      @if (isLoading && styles.length === 0) {
+        <div class="flex items-center justify-center py-24">
+          <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      } @else if (styles.length > 0) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 transition-opacity" [class.opacity-50]="isLoading">
           @for (style of styles; track style._id) {
-
             <!-- MODE ÉDITION : formulaire inline -->
             @if (editingStyleId === style._id) {
               <div class="rounded-lg border border-mempa-orange/50 bg-mempa-dark p-4 col-span-2 sm:col-span-1">
@@ -228,28 +224,25 @@
                 <div class="h-12 rounded-lg mb-3 transition-all"
                      [style.background]="'linear-gradient(135deg, ' + editStyleColor1 + ', ' + editStyleColor2 + ')'">
                 </div>
-
                 <input type="text" [(ngModel)]="editStyleName"
                        class="w-full bg-mempa-black border border-mempa-darker rounded-lg px-3 py-1.5 text-sm text-mempa-cream focus:outline-none focus:border-mempa-orange mb-3 transition-colors"
                        placeholder="Nom du style" />
-
                 <div class="flex items-center gap-2 mb-3">
                   <input type="color" [(ngModel)]="editStyleColor1"
                          class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
                   <input type="color" [(ngModel)]="editStyleColor2"
                          class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
                   <span class="text-mempa-cream-dimmer text-xs font-mono flex-1 truncate">
-              {{ editStyleColor1 }} / {{ editStyleColor2 }}
-            </span>
+                    {{ editStyleColor1 }} / {{ editStyleColor2 }}
+                  </span>
                 </div>
-
                 <div class="flex gap-2">
                   <button (click)="submitEditStyle()"
                           class="flex-1 px-3 py-1.5 bg-mempa-orange text-mempa-black font-semibold text-xs rounded-lg hover:bg-[#f0d080] transition-all">
                     Sauvegarder
                   </button>
                   <button (click)="cancelEditStyle()"
-                          class="px-3 py-1.5 border border-mempa-darker text-mempa-cream-dim text-xs rounded-lg hover:border-mempa-cream hover:text-mempa-cream transition-all">
+                          class="px-3 py-1.5 border border-mempa-darker text-mempa-cream-dim text-sm rounded-lg hover:border-mempa-cream hover:text-mempa-cream transition-all">
                     ✕
                   </button>
                 </div>
@@ -260,32 +253,23 @@
               <div class="relative rounded-lg overflow-hidden border border-mempa-darker hover:border-mempa-orange/50 transition-all">
                 <div class="h-20" [style.background]="getGradient(style)"></div>
                 <div class="bg-mempa-dark px-4 py-3 flex items-center justify-between">
-                  <span class="font-medium text-sm truncate">{{ style.name }}</span>
+                  <span class="font-medium text-sm truncate text-mempa-cream">{{ style.name }}</span>
                   <div class="flex items-center gap-2 ml-2 shrink-0">
-                    <!-- Bouton édition (crayon) -->
-                    <button (click)="startEditStyle(style)"
-                            title="Modifier ce style"
-                            class="text-mempa-cream-dimmer hover:text-mempa-orange transition-colors text-xs">
-                      ✎
-                    </button>
-                    <!-- Bouton suppression -->
+                    <button (click)="startEditStyle(style)" title="Modifier ce style"
+                            class="text-mempa-cream-dimmer hover:text-mempa-orange transition-colors text-xs">✎</button>
                     <button (click)="confirmDeleteStyle(style)"
-                            class="text-mempa-cream-dimmer hover:text-red-400 transition-colors text-xs">
-                      ✕
-                    </button>
+                            class="text-mempa-cream-dimmer hover:text-red-400 transition-colors text-xs">✕</button>
                   </div>
                 </div>
               </div>
             }
-
           }
         </div>
       }
     }
 
     <!-- Onglet playlists -->
-    @if (activeTab === 'playlists' && !isLoading) {
-
+    @if (activeTab === 'playlists') {
       <div class="flex items-center gap-4 mb-6">
         <div class="relative flex-1 max-w-sm">
           <input type="text" [(ngModel)]="playlistSearch" (input)="onPlaylistSearch()"
@@ -295,39 +279,32 @@
         <span class="text-mempa-cream-dim text-sm shrink-0">{{ totalPlaylists }} playlist(s)</span>
       </div>
 
-      @if (playlists.length > 0) {
-        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden mb-6">
+      @if (isLoading && playlists.length === 0) {
+        <div class="flex items-center justify-center py-24">
+          <div class="w-12 h-12 border-4 border-mempa-orange border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      } @else if (playlists.length > 0) {
+        <div class="bg-mempa-dark rounded-lg border border-mempa-darker overflow-hidden mb-6 transition-opacity" [class.opacity-50]="isLoading">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-mempa-darker text-mempa-cream-dim text-xs uppercase tracking-wider">
-                <th class="text-left px-6 py-4">Nom</th>
-                <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
-                <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
-
-                <!-- Colonne Vues — cliquable pour trier -->
-                <th class="text-right px-6 py-4 hidden sm:table-cell">
-                  <button
-                    (click)="onSortPlaylists('clicks')"
-                    [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' +
-                    (playlistSortColumn === 'clicks' ? 'text-mempa-orange' : '')">
-                    Vues
-                    <span class="text-xs">{{ getSortIcon('clicks') }}</span>
-                  </button>
-                </th>
-
-                <!-- Colonne Morceaux — cliquable pour trier -->
-                <th class="text-right px-6 py-4 hidden sm:table-cell">
-                  <button
-                    (click)="onSortPlaylists('songs')"
-                    [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' +
-                    (playlistSortColumn === 'songs' ? 'text-mempa-orange' : '')">
-                    Morceaux
-                    <span class="text-xs">{{ getSortIcon('songs') }}</span>
-                  </button>
-                </th>
-
-                <th class="text-right px-6 py-4">Action</th>
-              </tr>
+            <tr class="border-b border-mempa-darker text-mempa-cream-dim text-xs uppercase tracking-wider">
+              <th class="text-left px-6 py-4">Nom</th>
+              <th class="text-left px-6 py-4 hidden md:table-cell">Créateur</th>
+              <th class="text-left px-6 py-4 hidden lg:table-cell">Style</th>
+              <th class="text-right px-6 py-4 hidden sm:table-cell">
+                <button (click)="onSortPlaylists('clicks')"
+                        [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' + (playlistSortColumn === 'clicks' ? 'text-mempa-orange' : '')">
+                  Vues <span class="text-xs">{{ getSortIcon('clicks') }}</span>
+                </button>
+              </th>
+              <th class="text-right px-6 py-4 hidden sm:table-cell">
+                <button (click)="onSortPlaylists('songs')"
+                        [class]="'flex items-center gap-1 ml-auto hover:text-mempa-orange transition-colors ' + (playlistSortColumn === 'songs' ? 'text-mempa-orange' : '')">
+                  Morceaux <span class="text-xs">{{ getSortIcon('songs') }}</span>
+                </button>
+              </th>
+              <th class="text-right px-6 py-4">Action</th>
+            </tr>
             </thead>
             <tbody>
               @for (playlist of sortedPlaylists; track playlist._id) {
@@ -354,17 +331,13 @@
         @if (totalPages > 1) {
           <div class="flex items-center justify-center gap-2">
             <button (click)="loadPlaylists(currentPage - 1)" [disabled]="currentPage === 1"
-                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              ← Précédent
-            </button>
+                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">← Précédent</button>
             <span class="text-mempa-cream-dim text-sm px-4">Page {{ currentPage }} / {{ totalPages }}</span>
             <button (click)="loadPlaylists(currentPage + 1)" [disabled]="currentPage === totalPages"
-                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              Suivant →
-            </button>
+                    class="px-4 py-2 text-sm rounded-lg border border-mempa-darker text-mempa-cream-dim hover:text-mempa-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Suivant →</button>
           </div>
         }
-      } @else {
+      } @else if (!isLoading) {
         <div class="text-center py-16 text-mempa-cream-dimmer">
           <p class="text-4xl mb-4">🎶</p>
           <p>Aucune playlist trouvée</p>
