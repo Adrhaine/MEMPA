@@ -17,7 +17,7 @@
       <div class="flex-1">
         <div class="flex items-center gap-3 mb-1">
           @if (!showEditForm) {
-            <h1 class="text-3xl font-bold font-serif">
+            <h1 class="text-3xl font-bold font-sans">
               {{ username }}
             </h1>
             <button
@@ -95,7 +95,7 @@
                 [ngStyle]="getGradientStyle(playlist.style)"
                 class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
               </div>
-              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-serif">
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-sans">
                 {{ playlist.name }}
               </h2>
               <p class="text-mempa-cream-dim text-xs mb-2">
@@ -131,7 +131,7 @@
                 [ngStyle]="getGradientStyle(playlist.style)"
                 class="w-full aspect-square rounded-md mb-4 group-hover:brightness-110 transition-all duration-300">
               </div>
-              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-serif">
+              <h2 class="text-sm font-bold mb-1 truncate group-hover:text-mempa-orange transition-colors font-sans">
                 {{ playlist.name }}
               </h2>
               <p class="text-mempa-cream-dim text-xs mb-2">
