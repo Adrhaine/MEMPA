@@ -11,10 +11,13 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary,
     params: async (req, file) => {
+        const isGif = file.mimetype === 'image/gif';
         return {
             folder: 'mempa/covers',
             allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-            transformation: [{ width: 500, height: 500, crop: 'fill' }]
+            // Si c'est un GIF, on ne fait pas de transformation pour ne pas faire planter Cloudinary.
+            // Sinon, on applique le recadrage 500x500.
+            transformation: isGif ? [] : [{ width: 500, height: 500, crop: 'fill' }]
         };
     }
 });
